@@ -1667,26 +1667,18 @@ export default function FutureTaskApp() {
 
 
   return (
-    
-    <div
-      className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
-      {/* Resto del JSX */}
-      <h1 className="text-white text-3xl p-8">Bienvenido al Calendario Futurista</h1>
-    </div>
+  <div className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}>
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
+    <h1 className="text-white text-3xl p-8">Bienvenido al Calendario Futurista</h1>
 
-    <div className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
+    {/* Ad Placeholder for Free Users */}
+    {!user?.is_premium && (
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-800/70 backdrop-blur-sm text-white text-center p-2 z-50 animate-slide-in-bottom">
+        <p className="text-sm">{t("adMessage")}</p>
+      </div>
+    )}
 
-      {/* Ad Placeholder for Free Users */}
-      {!user?.is_premium && ( // Use user.is_premium
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800/70 backdrop-blur-sm text-white text-center p-2 z-50 animate-slide-in-bottom">
-          <p className="text-sm">{t("adMessage")}</p>
-        </div>
-      )}
-
-      <div className="relative">
+    <div className="relative">
         {/* Mobile Header */}
         <div className="lg:hidden bg-black/20 backdrop-blur-xl border-b border-purple-500/20 p-4 animate-fade-in-down">
           <div className="flex items-center justify-between">
