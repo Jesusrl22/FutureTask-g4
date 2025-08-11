@@ -1664,10 +1664,10 @@ export default function FutureTaskApp() {
       </div>
     )
   }
+}
 
-
-  // Render principal
   return (
+    
     <div
       className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}
     >
@@ -1675,10 +1675,7 @@ export default function FutureTaskApp() {
       {/* Resto del JSX */}
       <h1 className="text-white text-3xl p-8">Bienvenido al Calendario Futurista</h1>
     </div>
-  )
-}
 
-  return (
     <div className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
 
