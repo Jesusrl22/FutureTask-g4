@@ -1,35 +1,24 @@
-import React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "../globals.css" // Importar el CSS global desde la raíz
 import { NextIntlClientProvider } from "next-intl"
 import { getMessages } from "next-intl/server"
+import { notFound } from "next/navigation"
+import type { ReactNode } from "react"
+import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const locales = ["en", "es"]
 
-export const metadata: Metadata = {
-  title: "FutureTask - Tu Asistente de Productividad",
-  description: "Organiza tus tareas, alcanza tus metas y desbloquea tu potencial con FutureTask.",
-}
-
-export function generateStaticParams() {
-  return [{ locale: 'es' }, { locale: 'en' }];
-}
-
-export default async function LocaleLayout({
-  children,
-  params: { locale },
-}: {
-  children: React.ReactNode
+interface Props {
+  children: ReactNode
   params: { locale: string }
-}) {
-  // Providing all messages to the client
-  // side is the easiest way to get started
+}
+
+export default async function LocaleLayout({ children, params: { locale } }: Props) {
+  if (!locales.includes(locale as any)) notFound()
+
   const messages = await getMessages()
 
   return (
     <html lang={locale}>
-      <body className={inter.className}>
+      <body>
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>

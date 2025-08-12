@@ -1,123 +1,138 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Pause, RotateCcw, Settings } from "lucide-react"
-import { Slider } from "@/components/ui/slider"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Play, Pause, RotateCcw, Coffee, Brain } from "lucide-react"
 
-const DEFAULT_WORK_TIME = 25 * 60 // 25 minutes in seconds
-const DEFAULT_BREAK_TIME = 5 * 60 // 5 minutes in seconds
-const DEFAULT_LONG_BREAK_TIME = 15 * 60 // 15 minutes in seconds
-const DEFAULT_POMODOROS_UNTIL_LONG_BREAK = 4
+interface PomodoroSession {
+  id: string
+  type: "work" | "break"
+  duration: number
+  completedAt: string
+}
 
 export function PomodoroTimer() {
-  const [time, setTime] = useState(DEFAULT_WORK_TIME)
   const [isRunning, setIsRunning] = useState(false)
-  const [isWorkTime, setIsWorkTime] = useState(true)
-  const [pomodorosCompleted, setPomodorosCompleted] = useState(0)
-  const [showSettings, setShowSettings] = useState(false)
-
-  // Settings states
-  const [workDuration, setWorkDuration] = useState(DEFAULT_WORK_TIME / 60)
-  const [breakDuration, setBreakDuration] = useState(DEFAULT_BREAK_TIME / 60)
-  const [longBreakDuration, setLongBreakDuration] = useState(DEFAULT_LONG_BREAK_TIME / 60)
-  const [pomodorosUntilLongBreak, setPomodorosUntilLongBreak] = useState(DEFAULT_POMODOROS_UNTIL_LONG_BREAK)
-  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [time, setTime] = useState(25 * 60) // 25 minutes in seconds
+  const [sessionType, setSessionType] = useState<"work" | "break">("work")
+  const [sessions, setSessions] = useState<PomodoroSession[]>([])
+  const [completedPomodoros, setCompletedPomodoros] = useState(0)
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const originalTime = useRef(25 * 60)
 
-  const playSound = useCallback(() => {
-    if (soundEnabled) {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
-      }
-      audioRef.current = new Audio(
-        "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT",
-      ) // Simple beep sound
-      audioRef.current.volume = 0.5
-      audioRef.current.play().catch(() => {})
-    }
-  }, [soundEnabled])
-
-  const resetTimer = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    setIsRunning(false)
-    setIsWorkTime(true)
-    setTime(workDuration * 60)
-  }, [workDuration])
-
-  const startTimer = useCallback(() => {
-    if (isRunning) return
-
-    setIsRunning(true)
-    intervalRef.current = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime <= 1) {
-          playSound()
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current)
-          }
-          setIsRunning(false)
-
-          if (isWorkTime) {
-            setPomodorosCompleted((prev) => prev + 1)
-            if ((pomodorosCompleted + 1) % pomodorosUntilLongBreak === 0) {
-              setIsWorkTime(false)
-              return longBreakDuration * 60
-            } else {
-              setIsWorkTime(false)
-              return breakDuration * 60
-            }
-          } else {
-            setIsWorkTime(true)
-            return workDuration * 60
-          }
-        }
-        return prevTime - 1
-      })
-    }, 1000)
-  }, [
-    isRunning,
-    isWorkTime,
-    pomodorosCompleted,
-    workDuration,
-    breakDuration,
-    longBreakDuration,
-    pomodorosUntilLongBreak,
-    playSound,
-  ])
-
-  const pauseTimer = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    setIsRunning(false)
-  }, [])
+  const workDuration = 25 * 60 // 25 minutes
+  const shortBreakDuration = 5 * 60 // 5 minutes
+  const longBreakDuration = 15 * 60 // 15 minutes
 
   useEffect(() => {
-    // Initialize time based on settings when component mounts or settings change
-    setTime(isWorkTime ? workDuration * 60 : breakDuration * 60)
+    if (isRunning && time > 0) {
+      intervalRef.current = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime <= 1) {
+            handleSessionComplete()
+            return 0
+          }
+          return prevTime - 1
+        })
+      }, 1000)
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [workDuration, breakDuration, isWorkTime])
+  }, [isRunning, time])
+
+  const handleSessionComplete = () => {
+    setIsRunning(false)
+
+    // Add session to history
+    const newSession: PomodoroSession = {
+      id: Date.now().toString(),
+      type: sessionType,
+      duration: originalTime.current,
+      completedAt: new Date().toISOString(),
+    }
+    setSessions((prev) => [newSession, ...prev])
+
+    if (sessionType === "work") {
+      setCompletedPomodoros((prev) => prev + 1)
+
+      // Auto-start break
+      const isLongBreak = (completedPomodoros + 1) % 4 === 0
+      const breakDuration = isLongBreak ? longBreakDuration : shortBreakDuration
+
+      setSessionType("break")
+      setTime(breakDuration)
+      originalTime.current = breakDuration
+
+      // Play notification sound and show notification
+      playNotificationSound()
+      showNotification("¡Pomodoro Completado! 🍅", "Hora de tomar un descanso")
+    } else {
+      // Break completed, start work session
+      setSessionType("work")
+      setTime(workDuration)
+      originalTime.current = workDuration
+
+      playNotificationSound()
+      showNotification("Descanso Terminado ☕", "¡Hora de volver al trabajo!")
+    }
+  }
+
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio(
+        "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSnTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT",
+      )
+      audio.volume = 0.5
+      audio.play().catch(() => {})
+    } catch (e) {
+      // Ignore audio errors
+    }
+  }
+
+  const showNotification = (title: string, body: string) => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "/favicon.ico",
+        requireInteraction: true,
+      })
+    }
+  }
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning)
+  }
+
+  const resetTimer = () => {
+    setIsRunning(false)
+    setTime(originalTime.current)
+  }
+
+  const startWorkSession = () => {
+    setSessionType("work")
+    setTime(workDuration)
+    originalTime.current = workDuration
+    setIsRunning(false)
+  }
+
+  const startBreakSession = (duration: number) => {
+    setSessionType("break")
+    setTime(duration)
+    originalTime.current = duration
+    setIsRunning(false)
+  }
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -125,132 +140,202 @@ export function PomodoroTimer() {
     return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`
   }
 
-  const handleSaveSettings = () => {
-    resetTimer() // Reset timer with new settings
-    setShowSettings(false)
+  const getProgress = () => {
+    return ((originalTime.current - time) / originalTime.current) * 100
+  }
+
+  const getTodaySessions = () => {
+    const today = new Date().toDateString()
+    return sessions.filter((session) => new Date(session.completedAt).toDateString() === today)
+  }
+
+  const getTodayWorkSessions = () => {
+    return getTodaySessions().filter((session) => session.type === "work").length
   }
 
   return (
-    <Card className="bg-black/20 backdrop-blur-xl border-purple-500/20 animate-fade-in p-6 text-center">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-          Modo Pomodoro
-        </CardTitle>
-        <p className="text-muted-foreground mt-2">{isWorkTime ? "¡Hora de Concentrarse!" : "¡Descanso!"}</p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="text-7xl font-bold tabular-nums text-foreground animate-pulse-text">{formatTime(time)}</div>
-        <div className="flex justify-center space-x-4">
-          <Button
-            onClick={isRunning ? pauseTimer : startTimer}
-            className="h-14 w-14 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white shadow-lg"
-          >
-            {isRunning ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7" />}
-          </Button>
-          <Button
-            onClick={resetTimer}
-            className="h-14 w-14 rounded-full bg-black/30 border border-gray-500/30 text-muted-foreground hover:bg-gray-700/30 shadow-lg"
-          >
-            <RotateCcw className="w-7 h-7" />
-          </Button>
-          <Dialog open={showSettings} onOpenChange={setShowSettings}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-14 w-14 rounded-full bg-black/30 border border-green-500/30 text-green-300 hover:bg-green-700/30 shadow-lg"
-              >
-                <Settings className="w-7 h-7" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-black/90 backdrop-blur-xl border-green-500/30 text-foreground max-w-md animate-scale-in">
-              <DialogHeader>
-                <DialogTitle className="text-xl bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                  Configuración Pomodoro
-                </DialogTitle>
-                <DialogDescription className="text-muted-foreground">
-                  Ajusta los tiempos de trabajo y descanso.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-6 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="work-duration" className="text-foreground flex justify-between">
-                    Duración del Trabajo: {workDuration} minutos
-                  </Label>
-                  <Slider
-                    id="work-duration"
-                    min={1}
-                    max={60}
-                    step={1}
-                    value={[workDuration]}
-                    onValueChange={(val) => setWorkDuration(val[0])}
-                    className="[&>span:first-child]:h-2 [&>span:first-child]:bg-purple-500/30 [&>span:first-child>span]:bg-purple-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="break-duration" className="text-foreground flex justify-between">
-                    Duración del Descanso Corto: {breakDuration} minutos
-                  </Label>
-                  <Slider
-                    id="break-duration"
-                    min={1}
-                    max={15}
-                    step={1}
-                    value={[breakDuration]}
-                    onValueChange={(val) => setBreakDuration(val[0])}
-                    className="[&>span:first-child]:h-2 [&>span:first-child]:bg-cyan-500/30 [&>span:first-child>span]:bg-cyan-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="long-break-duration" className="text-foreground flex justify-between">
-                    Duración del Descanso Largo: {longBreakDuration} minutos
-                  </Label>
-                  <Slider
-                    id="long-break-duration"
-                    min={5}
-                    max={30}
-                    step={1}
-                    value={[longBreakDuration]}
-                    onValueChange={(val) => setLongBreakDuration(val[0])}
-                    className="[&>span:first-child]:h-2 [&>span:first-child]:bg-orange-500/30 [&>span:first-child>span]:bg-orange-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pomodoros-until-long-break" className="text-foreground flex justify-between">
-                    Pomodoros hasta Descanso Largo: {pomodorosUntilLongBreak}
-                  </Label>
-                  <Slider
-                    id="pomodoros-until-long-break"
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={[pomodorosUntilLongBreak]}
-                    onValueChange={(val) => setPomodorosUntilLongBreak(val[0])}
-                    className="[&>span:first-child]:h-2 [&>span:first-child]:bg-red-500/30 [&>span:first-child>span]:bg-red-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sound-enabled" className="text-foreground">
-                    Sonido de Notificación
-                  </Label>
-                  <Switch
-                    id="sound-enabled"
-                    checked={soundEnabled}
-                    onCheckedChange={setSoundEnabled}
-                    className="data-[state=checked]:bg-green-500"
-                  />
-                </div>
-                <Button
-                  onClick={handleSaveSettings}
-                  className="w-full h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transition-all duration-300"
-                >
-                  Guardar Configuración
-                </Button>
+    <div className="space-y-6">
+      {/* Main Timer Card */}
+      <Card className="bg-black/20 backdrop-blur-xl border-purple-500/20 animate-fade-in">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl text-foreground flex items-center">
+              {sessionType === "work" ? (
+                <>
+                  <Brain className="w-6 h-6 mr-2 text-purple-400" />
+                  Sesión de Trabajo
+                </>
+              ) : (
+                <>
+                  <Coffee className="w-6 h-6 mr-2 text-cyan-400" />
+                  Descanso
+                </>
+              )}
+            </CardTitle>
+            <Badge className={sessionType === "work" ? "bg-purple-500" : "bg-cyan-500"}>
+              {sessionType === "work" ? "TRABAJO" : "DESCANSO"}
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* Timer Display */}
+          <div className="text-center">
+            <div
+              className={`text-6xl md:text-8xl font-mono font-bold transition-colors duration-300 ${
+                time <= 60 ? "text-red-400 animate-pulse" : sessionType === "work" ? "text-purple-400" : "text-cyan-400"
+              }`}
+            >
+              {formatTime(time)}
+            </div>
+
+            <Progress
+              value={getProgress()}
+              className={`h-2 mt-4 transition-all duration-300 ${
+                sessionType === "work" ? "[&>div]:bg-purple-500" : "[&>div]:bg-cyan-500"
+              }`}
+            />
+          </div>
+
+          {/* Control Buttons */}
+          <div className="flex justify-center space-x-4">
+            <Button
+              onClick={toggleTimer}
+              size="lg"
+              className={`px-8 py-3 ${
+                sessionType === "work" ? "bg-purple-500 hover:bg-purple-600" : "bg-cyan-500 hover:bg-cyan-600"
+              }`}
+            >
+              {isRunning ? (
+                <>
+                  <Pause className="w-5 h-5 mr-2" />
+                  Pausar
+                </>
+              ) : (
+                <>
+                  <Play className="w-5 h-5 mr-2" />
+                  Iniciar
+                </>
+              )}
+            </Button>
+
+            <Button
+              onClick={resetTimer}
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 border-gray-500/30 text-muted-foreground hover:bg-gray-500/20 bg-transparent"
+            >
+              <RotateCcw className="w-5 h-5 mr-2" />
+              Reiniciar
+            </Button>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button
+              onClick={startWorkSession}
+              variant="outline"
+              size="sm"
+              className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20 bg-transparent"
+            >
+              25 min Trabajo
+            </Button>
+            <Button
+              onClick={() => startBreakSession(shortBreakDuration)}
+              variant="outline"
+              size="sm"
+              className="border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
+            >
+              5 min Descanso
+            </Button>
+            <Button
+              onClick={() => startBreakSession(longBreakDuration)}
+              variant="outline"
+              size="sm"
+              className="border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20"
+            >
+              15 min Descanso Largo
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Statistics Card */}
+      <Card className="bg-black/20 backdrop-blur-xl border-purple-500/20 animate-fade-in">
+        <CardHeader>
+          <CardTitle className="text-xl text-foreground">Estadísticas de Hoy</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+              <div className="text-2xl font-bold text-purple-400">{getTodayWorkSessions()}</div>
+              <div className="text-sm text-muted-foreground">Pomodoros</div>
+            </div>
+
+            <div className="text-center p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+              <div className="text-2xl font-bold text-cyan-400">
+                {getTodaySessions().filter((s) => s.type === "break").length}
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <p className="text-muted-foreground text-sm">Pomodoros Completados: {pomodorosCompleted}</p>
-      </CardContent>
-    </Card>
+              <div className="text-sm text-muted-foreground">Descansos</div>
+            </div>
+
+            <div className="text-center p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+              <div className="text-2xl font-bold text-green-400">
+                {Math.floor((getTodayWorkSessions() * 25) / 60)}h {(getTodayWorkSessions() * 25) % 60}m
+              </div>
+              <div className="text-sm text-muted-foreground">Tiempo Trabajo</div>
+            </div>
+
+            <div className="text-center p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <div className="text-2xl font-bold text-yellow-400">{completedPomodoros}</div>
+              <div className="text-sm text-muted-foreground">Total Completados</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Sessions */}
+      {getTodaySessions().length > 0 && (
+        <Card className="bg-black/20 backdrop-blur-xl border-purple-500/20 animate-fade-in">
+          <CardHeader>
+            <CardTitle className="text-xl text-foreground">Sesiones de Hoy</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {getTodaySessions()
+                .slice(0, 5)
+                .map((session) => (
+                  <div
+                    key={session.id}
+                    className={`flex items-center justify-between p-2 rounded-lg ${
+                      session.type === "work"
+                        ? "bg-purple-500/10 border border-purple-500/20"
+                        : "bg-cyan-500/10 border border-cyan-500/20"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      {session.type === "work" ? (
+                        <Brain className="w-4 h-4 text-purple-400" />
+                      ) : (
+                        <Coffee className="w-4 h-4 text-cyan-400" />
+                      )}
+                      <span className="text-sm text-foreground">
+                        {session.type === "work" ? "Trabajo" : "Descanso"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">({Math.floor(session.duration / 60)} min)</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(session.completedAt).toLocaleTimeString("es-ES", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   )
 }

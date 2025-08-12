@@ -1,11 +1,9 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, XCircle, Sparkles } from "lucide-react"
-import { PayPalButton } from "./paypal-button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Check, Crown, Sparkles } from "lucide-react"
 
 interface PricingSectionProps {
   onUpgrade: (type: "monthly" | "yearly") => void
@@ -13,117 +11,120 @@ interface PricingSectionProps {
 }
 
 export function PricingSection({ onUpgrade, onSkip }: PricingSectionProps) {
-  const features = {
-    free: [
-      { text: "Acceso básico al calendario", included: true },
-      { text: "Máximo 20 tareas activas", included: true },
-      { text: "Anuncios visibles", included: true },
-      { text: "Temas de color básicos", included: true },
-      { text: "Sin estadísticas avanzadas", included: false },
-      { text: "Sin logros extra", included: false },
-      { text: "Sin tareas ilimitadas", included: false },
-      { text: "Sin temas exclusivos", included: false },
-      { text: "Sin vista semanal", included: false }, // New premium feature
-      { text: "Sin modo Pomodoro", included: false }, // New premium feature
-    ],
-    premium: [
-      { text: "Acceso completo al calendario", included: true },
-      { text: "Tareas ilimitadas", included: true },
-      { text: "Sin anuncios", included: true },
-      { text: "Acceso a temas exclusivos", included: true },
-      { text: "Estadísticas detalladas", included: true },
-      { text: "Logros desbloqueables adicionales", included: true },
-      { text: "Medallas especiales", included: true },
-      { text: "Soporte prioritario", included: true },
-      { text: "Vista semanal de tareas", included: true }, // New premium feature
-      { text: "Modo Pomodoro integrado", included: true }, // New premium feature
-    ],
-  }
-
-  const handlePayPalSuccess = (type: "monthly" | "yearly") => (details: any, data: any) => {
-    console.log("Payment successful:", details, data)
-    onUpgrade(type)
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
 
-      <Card className="w-full max-w-4xl bg-black/20 backdrop-blur-xl border-purple-500/20 shadow-2xl animate-scale-in">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-            Elige tu Plan FutureTask
-          </CardTitle>
-          <CardDescription className="text-muted-foreground mt-2">
-            Desbloquea todo el potencial de tu productividad.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-6 mt-6">
-          {/* Free Plan Card */}
-          <Card className="bg-black/30 border-gray-700/50 p-6 flex flex-col justify-between animate-slide-in-left">
-            <div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">Gratis</h3>
-              <p className="text-muted-foreground mb-4">Ideal para empezar a organizar tus tareas.</p>
-              <div className="space-y-2">
-                {features.free.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    {feature.included ? (
-                      <CheckCircle className="w-5 h-5 text-green-400" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-400" />
-                    )}
-                    <span className={feature.included ? "text-foreground" : "text-muted-foreground line-through"}>
-                      {feature.text}
-                    </span>
-                  </div>
-                ))}
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-8">
+          <Crown className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-4">
+            Desbloquea FutureTask Premium
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Accede a todas las funciones avanzadas y mejora tu productividad
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Free Plan */}
+          <Card className="bg-black/20 backdrop-blur-xl border-gray-500/20">
+            <CardHeader>
+              <CardTitle className="text-2xl text-foreground">Gratis</CardTitle>
+              <div className="text-3xl font-bold text-foreground">
+                $0<span className="text-sm font-normal">/mes</span>
               </div>
-            </div>
-            <Button
-              onClick={onSkip}
-              variant="outline"
-              className="w-full mt-6 h-12 bg-black/40 border-gray-500/30 text-muted-foreground hover:bg-gray-700/30 transition-all duration-300"
-            >
-              Continuar como Gratis
-            </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Hasta 20 tareas activas</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Calendario básico</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Logros básicos</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">4 temas básicos</span>
+              </div>
+            </CardContent>
           </Card>
 
-          {/* Premium Plan Card */}
-          <Card className="bg-gradient-to-br from-purple-900/50 to-cyan-900/50 border-purple-500/50 p-6 flex flex-col justify-between relative overflow-hidden animate-slide-in-right">
-            <Sparkles className="absolute -top-4 -right-4 w-20 h-20 text-purple-400/20 rotate-12" />
-            <div>
-              <h3 className="text-2xl font-bold text-foreground mb-2 flex items-center">
-                Premium <Badge className="ml-2 bg-yellow-500 text-white">Recomendado</Badge>
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Desbloquea todas las funciones para una productividad ilimitada.
-              </p>
-            </div>
-            <div className="space-y-2">
-              {features.premium.map((feature, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-foreground">{feature.text}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 space-y-4">
-              <div className="text-center">
-                <p className="text-4xl font-bold text-foreground">
-                  $0.99<span className="text-lg text-muted-foreground">/mes</span>
-                </p>
-                <PayPalButton amount="0.99" onSuccess={handlePayPalSuccess("monthly")} />
+          {/* Premium Plan */}
+          <Card className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 backdrop-blur-xl border-yellow-500/30 relative">
+            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+              Recomendado
+            </Badge>
+            <CardHeader>
+              <CardTitle className="text-2xl bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent flex items-center">
+                <Sparkles className="w-6 h-6 mr-2 text-yellow-400" />
+                Premium
+              </CardTitle>
+              <div className="text-3xl font-bold text-foreground">
+                $4.99<span className="text-sm font-normal">/mes</span>
               </div>
-              <div className="text-center">
-                <p className="text-4xl font-bold text-foreground">
-                  $10<span className="text-lg text-muted-foreground">/año</span>
-                </p>
-                <PayPalButton amount="10.00" onSuccess={handlePayPalSuccess("yearly")} />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Tareas ilimitadas</span>
               </div>
-            </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Vista semanal avanzada</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Temporizador Pomodoro</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Todos los logros</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Temas premium exclusivos</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Estadísticas avanzadas</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Check className="w-5 h-5 text-green-400" />
+                <span className="text-foreground">Sin anuncios</span>
+              </div>
+            </CardContent>
           </Card>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Button
+            onClick={() => onUpgrade("yearly")}
+            size="lg"
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold px-8"
+          >
+            Obtener Premium Anual ($39.99/año)
+          </Button>
+
+          <Button
+            onClick={() => onUpgrade("monthly")}
+            variant="outline"
+            size="lg"
+            className="border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 px-8"
+          >
+            Mensual ($4.99/mes)
+          </Button>
+
+          <Button onClick={onSkip} variant="ghost" size="lg" className="text-muted-foreground hover:text-foreground">
+            Continuar Gratis
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

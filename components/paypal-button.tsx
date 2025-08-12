@@ -1,49 +1,42 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { CreditCard } from "lucide-react"
 
 interface PayPalButtonProps {
   amount: string
   onSuccess: (details: any, data: any) => void
 }
 
-declare global {
-  interface Window {
-    paypal: any
-  }
-}
-
 export function PayPalButton({ amount, onSuccess }: PayPalButtonProps) {
-  const paypalRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (window.paypal) {
-      window.paypal
-        .Buttons({
-          createOrder: (data: any, actions: any) => {
-            return actions.order.create({
-              purchase_units: [
-                {
-                  amount: {
-                    value: amount,
-                  },
-                },
-              ],
-            })
-          },
-          onApprove: (data: any, actions: any) => {
-            return actions.order.capture().then((details: any) => {
-              onSuccess(details, data)
-            })
-          },
-          onError: (err: any) => {
-            console.error("PayPal Checkout onError", err)
-            alert("Ocurrió un error con el pago de PayPal. Por favor, inténtalo de nuevo.")
-          },
-        })
-        .render(paypalRef.current)
+  const handlePayment = () => {
+    // Simulate PayPal payment success for demo
+    const mockDetails = {
+      id: "PAYMENT_ID_" + Date.now(),
+      status: "COMPLETED",
+      payer: {
+        email_address: "buyer@example.com",
+        name: { given_name: "John", surname: "Doe" },
+      },
     }
-  }, [amount, onSuccess])
 
-  return <div ref={paypalRef} className="w-full" />
+    const mockData = {
+      orderID: "ORDER_ID_" + Date.now(),
+    }
+
+    // Simulate payment processing delay
+    setTimeout(() => {
+      onSuccess(mockDetails, mockData)
+    }, 1500)
+  }
+
+  return (
+    <Button
+      onClick={handlePayment}
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2"
+    >
+      <CreditCard className="w-5 h-5" />
+      <span>Pagar ${amount} USD</span>
+    </Button>
+  )
 }
