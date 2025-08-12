@@ -1,1842 +1,1488 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import {
-  Trophy,
-  CalendarIcon,
-  Star,
-  Target,
-  Award,
-  Zap,
-  Settings,
-  BarChart3,
-  Flame,
-  CalendarDays,
-  TrendingUp,
-  Coffee,
-  Moon,
-  Sun,
-  Menu,
-  X,
-  Search,
-  Bell,
-  CalendarSearch,
-  Gem,
-  Sparkles,
-  Globe,
-} from "lucide-react"
+import { useState, useEffect } from 'react'
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay, addDays, subDays, startOfDay, endOfDay, isSameDay } from 'date-fns'
+import { es, enUS } from 'date-fns/locale'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Progress } from '@/components/ui/progress'
+import { Slider } from '@/components/ui/slider'
+import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar as CalendarIcon, Plus, Settings, Moon, Sun, Globe, Bell, Clock, Target, Zap, Star, Crown, Palette, Volume2, VolumeX, Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Filter, Search, MoreVertical, Edit, Trash2, Copy, Calendar as CalendarIconSmall, User, CreditCard, LogOut, Menu, X, Check, AlertCircle, Info, Sparkles, TrendingUp, Award, Gift, Heart, Coffee, Briefcase, Home, BookOpen, Dumbbell, Music, Camera, Gamepad2, Plane, ShoppingCart, Phone, Mail, MapPin, Clock3, Users, MessageSquare, Share2, Download, Upload, RefreshCw, Eye, EyeOff, Lock, Unlock, Shield, Wifi, WifiOff, Battery, BatteryLow, Signal, SignalLow, Bluetooth, BluetoothConnected, Headphones, Mic, MicOff, Video, VideoOff, ImageIcon, FileText, Folder, FolderOpen, Archive, Bookmark, Tag, Flag, Pin, PinOff, ThumbsUp, ThumbsDown, Smile, Frown, Meh, Angry, Laugh, Cry, Surprised, Confused, Sleepy, Sick, Cool, Nerd, Robot, Alien, Ghost, Skull, Fire, Snowflake, Sun as SunIcon, Moon as MoonIcon, Cloud, CloudRain, CloudSnow, CloudLightning, Rainbow, Umbrella, Thermometer, Wind, Compass, Mountain, Tree, Flower, Leaf, Seedling, Cactus, PalmTree, Evergreen, Deciduous, Mushroom, Shell, Paw, Feather, Bug, Butterfly, Fish, Bird, Rabbit, Turtle, Snail, Honeybee, Ladybug, Spider, Ant, Worm, Microbe, DNA, Atom, Molecule, Magnet, Zap as ZapIcon, Lightbulb, Candle, Flashlight, Lamp, Lantern, Torch, Campfire, Fireplace, Stove, Oven, Microwave, Refrigerator, Freezer, Dishwasher, WashingMachine, Dryer, Iron, Vacuum, Broom, Mop, Bucket, Soap, Towel, Toilet, Shower, Bathtub, Sink, Faucet, Pipe, Wrench, Hammer, Screwdriver, Saw, Drill, Nail, Screw, Nut, Bolt, Gear, Cog, Wheel, Tire, Car, Truck, Bus, Motorcycle, Bicycle, Scooter, Skateboard, RollerSkate, Sled, Boat, Ship, Submarine, Airplane, Helicopter, Rocket, Satellite, UFO, Train, Tram, Metro, Taxi, Ambulance, FireTruck, PoliceCar, Tractor, Bulldozer, Crane, ForkLift, Excavator, Dump, Cement, Road, Bridge, Building, House, Hut, Castle, Church, Mosque, Synagogue, Temple, Pagoda, Torii, Shrine, Statue, Monument, Fountain, Well, Tower, Lighthouse, Windmill, Factory, Warehouse, Store, Shop, Market, Bank, Hospital, School, University, Library, Museum, Theater, Cinema, Stadium, Gym, Pool, Park, Playground, Carousel, FerrisWheel, RollerCoaster, Tent, Circus, Carnival, Fair, Festival, Party, Wedding, Birthday, Christmas, Halloween, Easter, Thanksgiving, NewYear, Valentine, StPatrick, Independence, Labor, Memorial, Veterans, Presidents, MLK, Columbus, Indigenous, Earth, Environment, Recycle, Trash, Compost, Solar, Wind as WindIcon, Water, Electric, Gas, Oil, Coal, Nuclear, Renewable, Sustainable, Green, Eco, Organic, Natural, Healthy, Fresh, Clean, Pure, Safe, Secure, Protected, Private, Public, Open, Closed, Free, Paid, Premium, Pro, Basic, Standard, Advanced, Expert, Beginner, Intermediate, Easy, Hard, Simple, Complex, Fast, Slow, Quick, Instant, Delayed, Pending, Processing, Loading, Saving, Uploading, Downloading, Syncing, Connecting, Connected, Disconnected, Online, Offline, Available, Unavailable, Active, Inactive, Enabled, Disabled, On, Off, Yes, No, True, False, Good, Bad, Right, Wrong, Correct, Incorrect, Valid, Invalid, Success, Error, Warning, Info as InfoIcon, Debug, Trace, Log, Report, Analytics, Statistics, Metrics, Data, Database, Server, Cloud as CloudIcon, Network, Internet, Web, Website, App, Software, Program, Code, Script, Function, Variable, Constant, Array, Object, String, Number, Boolean, Null, Undefined, Class, Interface, Method, Property, Parameter, Argument, Return, Import, Export, Module, Package, Library, Framework, API, SDK, CLI, GUI, UI, UX, Design, Layout, Theme, Style, Color, Font, Text, ImageIcon as ImageIconIcon, Video as VideoIcon, Audio, Sound, Music as MusicIcon, Voice, Speech, Language, Translation, Dictionary, Grammar, Spell, Word, Sentence, Paragraph, Page, Book, Article, Blog, News, Magazine, Newspaper, Journal, Diary, Note, Memo, List, Todo, Task, Project, Goal, Plan, Schedule, Calendar as CalendarIconLarge, Date, Time, Hour, Minute, Second, Day, Week, Month, Year, Today, Tomorrow, Yesterday, Now, Soon, Later, Before, After, During, While, Until, Since, From, To, At, In, On, By, With, Without, For, Against, About, Around, Through, Over, Under, Above, Below, Between, Among, Inside, Outside, Near, Far, Here, There, Everywhere, Nowhere, Somewhere, Anywhere, Left, Right, Up, Down, Forward, Backward, North, South, East, West, Center, Middle, Top, Bottom, Front, Back, Side, Corner, Edge, Border, Margin, Padding, Width, Height, Length, Size, Scale, Zoom, Fit, Fill, Stretch, Shrink, Expand, Collapse, Fold, Unfold, Open as OpenIcon, Close, Show, Hide, Reveal, Conceal, Display, Render, Draw, Paint, Sketch, Doodle, Art, Craft, Create, Make, Build, Construct, Assemble, Install, Setup, Configure, Customize, Personalize, Adjust, Modify, Change, Update, Upgrade, Downgrade, Install as InstallIcon, Uninstall, Add, Remove, Delete as DeleteIcon, Insert, Append, Prepend, Replace, Substitute, Swap, Exchange, Trade, Buy, Sell, Pay, Purchase, Order, Ship, Deliver, Receive, Send, Mail as MailIcon, Email, Message, Chat, Talk, Speak, Listen, Hear, See, Look, Watch, View, Read, Write, Type, Print, Scan, Copy as CopyIcon, Paste, Cut, Undo, Redo, Save, Load, Import as ImportIcon, Export as ExportIcon, Backup, Restore, Reset, Restart, Reboot, Shutdown, Sleep, Wake, Pause as PauseIcon, Resume, Start, Stop, End, Finish, Complete, Done, Cancel, Abort, Skip, Next, Previous, First, Last, Begin, Continue, Proceed, Advance, Progress, Move, Go, Come, Stay, Wait, Hold, Keep, Store, Retrieve, Fetch, Get, Set, Put, Post, Patch, Delete as DeleteIconSmall, Head, Options, Trace as TraceIcon, Connect, Disconnect, Join, Leave, Enter, Exit, Login, Logout, Signin, Signup, Register, Subscribe, Unsubscribe, Follow, Unfollow, Like, Unlike, Love, Hate, Favorite, Unfavorite, Bookmark as BookmarkIcon, Unbookmark, Share, Unshare, Comment, Reply, Forward, Retweet, Quote, Mention, Tag as TagIcon, Untag, Block, Unblock, Mute, Unmute, Ban, Unban, Report as ReportIcon, Flag as FlagIcon, Unflag, Approve, Reject, Accept, Decline, Confirm, Deny, Allow, Forbid, Grant, Revoke, Enable, Disable as DisableIcon, Activate, Deactivate, Turn, Toggle, Switch as SwitchIcon, Flip, Rotate, Spin, Twist, Bend, Fold as FoldIcon, Unfold as UnfoldIcon, Wrap, Unwrap, Pack, Unpack, Zip, Unzip, Compress, Decompress, Encode, Decode, Encrypt, Decrypt, Hash, Verify, Validate, Authenticate, Authorize, Permission, Access, Deny as DenyIcon, Grant as GrantIcon, Role, User as UserIcon, Admin, Moderator, Guest, Member, Subscriber, Follower, Friend, Contact, Group, Team, Organization, Company, Business, Enterprise, Startup, Corporation, Agency, Firm, Studio, Lab, Workshop, Factory as FactoryIcon, Office, Store as StoreIcon, Shop as ShopIcon, Market as MarketIcon, Mall, Plaza, Square, Street, Avenue, Road as RoadIcon, Highway, Bridge as BridgeIcon, Tunnel, Intersection, Junction, Roundabout, Traffic, Light, Sign, Signal as SignalIcon, Stop as StopIcon, Yield, Merge, Turn as TurnIcon, Straight, Curve, Hill, Valley, Mountain as MountainIcon, River, Lake, Ocean, Sea, Beach, Island, Desert, Forest, Jungle, Savanna, Prairie, Tundra, Arctic, Antarctic, Equator, Tropics, Subtropics, Temperate, Polar, Climate, Weather, Season, Spring, Summer, Autumn, Winter, Rain, Snow, Sleet, Hail, Fog, Mist, Dew, Frost, Ice, Steam, Vapor, Gas as GasIcon, Liquid, Solid, Plasma, Matter, Energy, Force, Power, Strength, Weakness, Speed, Velocity, Acceleration, Momentum, Inertia, Gravity, Magnetism, Electricity, Heat, Cold, Temperature, Pressure, Density, Mass, Weight, Volume, Area, Perimeter, Diameter, Radius, Circumference, Angle, Degree, Radian, Sine, Cosine, Tangent, Logarithm, Exponential, Square, Cube, Root, Power as PowerIcon, Base, Exponent, Coefficient, Variable as VariableIcon, Constant as ConstantIcon, Equation, Formula, Expression, Function as FunctionIcon, Graph, Chart, Plot, Axis, Scale as ScaleIcon, Grid, Legend, Title, Label as LabelIcon, Caption, Heading, Subheading, Paragraph as ParagraphIcon, Sentence as SentenceIcon, Word as WordIcon, Letter, Character, Symbol, Icon, Emoji, Emoticon, Sticker, GIF, Meme, Avatar as AvatarIcon, Profile, Picture, Photo, Selfie, Portrait, Landscape, Panorama, Screenshot, Thumbnail, Preview, Gallery, Album, Collection, Playlist, Queue, History, Recent, Favorite as FavoriteIcon, Popular, Trending, Featured, Recommended, Suggested, Related, Similar, Different, Unique, Special, Rare, Common, Frequent, Occasional, Regular, Irregular, Normal, Abnormal, Typical, Atypical, Standard as StandardIcon, Custom, Default, Original, Copy as CopyIconSmall, Duplicate, Clone, Mirror, Reflection, Shadow, Silhouette, Outline, Border as BorderIcon, Frame, Background, Foreground, Layer, Overlay, Underlay, Mask, Filter as FilterIcon, Effect, Animation, Transition, Transform, Translate, Scale as ScaleIconSmall, Rotate as RotateIcon, Skew, Perspective, Matrix, Vector, Pixel, Resolution, Quality, Compression, Format, Extension, Type, Kind, Sort, Category, Class as ClassIcon, Group as GroupIcon, Set, Collection as CollectionIcon, List as ListIcon, Array as ArrayIcon, Stack, Queue as QueueIcon, Tree as TreeIcon, Graph as GraphIcon, Network as NetworkIcon, Node, Edge, Link, Connection, Relationship, Association, Dependency, Reference, Pointer, Index, Key, Value, Pair, Tuple, Record, Field, Column, Row, Table, Database as DatabaseIcon, Schema, Model, Entity, Attribute, Property as PropertyIcon, Method as MethodIcon, Function as FunctionIconSmall, Procedure, Routine, Algorithm, Logic, Condition, Loop, Iteration, Recursion, Branch, Decision, Choice, Option, Alternative, Selection, Pick, Choose, Decide, Determine, Calculate, Compute, Process, Execute, Run, Perform, Operate, Work, Function as FunctionIconLarge, Behave, Act, React, Respond, Handle, Manage, Control, Direct, Guide, Lead, Follow, Obey, Command, Order as OrderIcon, Request, Ask, Answer, Reply as ReplyIcon, Question, Query, Search as SearchIcon, Find, Locate, Discover, Explore, Investigate, Research, Study, Learn, Teach, Educate, Train, Practice, Exercise, Test, Exam, Quiz, Assessment, Evaluation, Review, Feedback, Rating, Score, Grade, Mark, Point, Credit, Reward, Prize, Award as AwardIcon, Trophy, Medal, Badge as BadgeIcon, Certificate, Diploma, Degree as DegreeIcon, Title as TitleIcon, Rank, Level, Stage, Phase, Step, Process as ProcessIcon, Procedure as ProcedureIcon, Method as MethodIconSmall, Technique, Strategy, Tactic, Approach, Way, Path, Route, Direction, Instruction, Guide as GuideIcon, Manual, Tutorial, Help, Support, Assistance, Service, Customer, Client, Patient, Student, Teacher, Instructor, Professor, Doctor, Nurse, Engineer, Developer, Designer, Artist, Writer, Author, Editor, Publisher, Journalist, Reporter, Photographer, Videographer, Filmmaker, Director, Producer, Actor, Actress, Singer, Musician, Composer, Conductor, Dancer, Choreographer, Athlete, Coach, Trainer, Manager, Leader, Boss, Employee, Worker, Staff, Team as TeamIcon, Crew, Squad, Group as GroupIconSmall, Band, Club, Society, Association as AssociationIcon, Organization as OrganizationIcon, Institution, Foundation, Charity, Nonprofit, Government, Agency as AgencyIcon, Department, Ministry, Bureau, Office as OfficeIcon, Branch, Division, Section, Unit, Component, Part, Piece, Element, Item, Object as ObjectIcon, Thing, Stuff, Material, Substance, Matter as MatterIcon, Content, Information, Data as DataIcon, Knowledge, Wisdom, Intelligence, Smart, Clever, Bright, Brilliant, Genius, Talented, Skilled, Expert as ExpertIcon, Professional, Amateur, Beginner as BeginnerIcon, Novice, Intermediate as IntermediateIcon, Advanced as AdvancedIcon, Master, Grandmaster, Champion, Winner, Loser, Player, Participant, Competitor, Opponent, Rival, Enemy, Friend as FriendIcon, Ally, Partner, Teammate, Colleague, Coworker, Neighbor, Stranger, Acquaintance, Relative, Family, Parent, Child, Sibling, Spouse, Partner as PartnerIcon, Lover, Boyfriend, Girlfriend, Husband, Wife, Son, Daughter, Father, Mother, Brother, Sister, Uncle, Aunt, Cousin, Nephew, Niece, Grandfather, Grandmother, Grandchild, Ancestor, Descendant, Generation, Age, Young, Old, Baby, Toddler, Child as ChildIcon, Teen, Adult, Senior, Elder, Elderly, Mature, Immature, Grown, Growing, Development, Growth, Evolution, Change as ChangeIcon, Transformation, Metamorphosis, Adaptation, Adjustment, Modification, Alteration, Revision, Update as UpdateIcon, Upgrade as UpgradeIcon, Improvement, Enhancement, Optimization, Refinement, Polish, Perfection, Excellence, Quality as QualityIcon, Standard as StandardIconSmall, Norm, Rule, Law, Regulation, Policy, Guideline, Principle, Value as ValueIcon, Belief, Opinion, View, Perspective, Viewpoint, Standpoint, Position, Stance, Attitude, Approach as ApproachIcon, Style as StyleIcon, Fashion, Trend, Mode, Manner, Way as WayIcon, Method as MethodIconLarge, Technique as TechniqueIcon, Skill, Ability, Capability, Capacity, Potential, Talent, Gift as GiftIcon, Strength as StrengthIcon, Weakness as WeaknessIcon, Advantage, Disadvantage, Benefit, Drawback, Pro, Con, Plus, Minus, Positive, Negative, Good as GoodIcon, Bad as BadIcon, Better, Worse, Best, Worst, Great, Terrible, Excellent, Poor, Outstanding, Mediocre, Superior, Inferior, High, Low, Top as TopIcon, Bottom as BottomIcon, Maximum, Minimum, Most, Least, More, Less, Many, Few, All, None, Some, Any, Every, Each, Both, Either, Neither, Or, And, Not, But, However, Although, Though, Despite, Regardless, Nevertheless, Nonetheless, Furthermore, Moreover, Additionally, Also, Too, As, Well, Besides, Except, Unless, If, When, Where, Why, How, What, Who, Which, Whose, Whom, That, This, These, Those, Here as HereIcon, There as ThereIcon, Everywhere as EverywhereIcon, Nowhere as NowhereIcon, Somewhere as SomewhereIcon, Anywhere as AnywhereIcon, Now as NowIcon, Then, Soon as SoonIcon, Later as LaterIcon, Early, Late, Before as BeforeIcon, After as AfterIcon, During as DuringIcon, While as WhileIcon, Until as UntilIcon, Since as SinceIcon, From as FromIcon, To as ToIcon, At as AtIcon, In as InIcon, On as OnIcon, By as ByIcon, With as WithIcon, Without as WithoutIcon, For as ForIcon, Against as AgainstIcon, About as AboutIcon, Around as AroundIcon, Through as ThroughIcon, Over as OverIcon, Under as UnderIcon, Above as AboveIcon, Below as BelowIcon, Between as BetweenIcon, Among as AmongIcon, Inside as InsideIcon, Outside as OutsideIcon, Near as NearIcon, Far as FarIcon } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
+import { useTranslations } from 'next-intl'
+import { WelcomeScreen } from '@/components/welcome-screen'
+import { PricingSection } from '@/components/pricing-section'
+import { WeeklyView } from '@/components/weekly-view'
+import { PomodoroTimer } from '@/components/pomodoro-timer'
+import { PayPalButton } from '@/components/paypal-button'
+import { supabase } from '@/lib/supabase'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 
-import { PricingSection } from "@/components/pricing-section"
-import { WelcomeScreen } from "@/components/welcome-screen"
-import { supabase } from "@/lib/supabase"
-import { useTranslations } from "next-intl"
-import { useRouter, usePathname } from "next/navigation"
+const locales = {
+  'es': es,
+  'en': enUS,
+}
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+})
 
 interface Task {
   id: string
-  user_id: string
-  text: string
-  completed: boolean
-  date: string
-  priority: "low" | "medium" | "high"
-  category: string
-  notes?: string
-  completed_at?: string
-  reminder_time?: string
-  notified?: boolean
-}
-
-interface Achievement {
-  id: string
-  name: string
-  description: string
-  icon: React.ReactNode
-  unlocked: boolean
-  unlockedAt?: string
-  rarity: "common" | "rare" | "epic" | "legendary"
-  premium?: boolean
-}
-
-interface Notification {
-  id: string
-  user_id: string
   title: string
-  message: string
-  type: "task" | "achievement" | "reminder" | "streak"
-  timestamp: string
-  read: boolean
-  task_id?: string
+  description?: string
+  date: Date
+  completed: boolean
+  priority: 'low' | 'medium' | 'high'
+  category: string
+  estimatedTime?: number
+  actualTime?: number
+  tags: string[]
+  subtasks: SubTask[]
+  recurring?: 'daily' | 'weekly' | 'monthly'
+  reminder?: Date
+  color?: string
 }
 
-interface NotificationSettings {
-  enabled: boolean
-  taskReminders: boolean
-  achievementAlerts: boolean
-  streakReminders: boolean
-  dailyMotivation: boolean
-  reminderTime: string
-}
-
-interface Country {
-  code: string
-  name: string
-  timezone: string
-  flag: string
-}
-
-interface UserProfile {
+interface SubTask {
   id: string
-  email: string
-  name: string
-  country: string
-  timezone: string
-  joined_at: string
-  last_active: string
-  is_premium: boolean
-  subscription_type: "free" | "monthly" | "yearly"
-  notification_settings?: NotificationSettings
-  theme?: string
+  title: string
+  completed: boolean
 }
 
-const COUNTRIES: Country[] = [
-  { code: "AR", name: "Argentina", timezone: "America/Argentina/Buenos_Aires", flag: "🇦🇷" },
-  { code: "MX", name: "México", timezone: "America/Mexico_City", flag: "🇲🇽" },
-  { code: "ES", name: "España", timezone: "Europe/Madrid", flag: "🇪🇸" },
-  { code: "CO", name: "Colombia", timezone: "America/Bogota", flag: "🇨🇴" },
-  { code: "PE", name: "Perú", timezone: "America/Lima", flag: "🇵🇪" },
-  { code: "CL", name: "Chile", timezone: "America/Santiago", flag: "🇨🇱" },
-  { code: "VE", name: "Venezuela", timezone: "America/Caracas", flag: "🇻🇪" },
-  { code: "EC", name: "Ecuador", timezone: "America/Guayaquil", flag: "🇪🇨" },
-  { code: "UY", name: "Uruguay", timezone: "America/Montevideo", flag: "🇺🇾" },
-  { code: "PY", name: "Paraguay", timezone: "America/Asuncion", flag: "🇵🇾" },
-  { code: "BO", name: "Bolivia", timezone: "America/La_Paz", flag: "🇧🇴" },
-  { code: "CR", name: "Costa Rica", timezone: "America/Costa_Rica", flag: "🇨🇷" },
-  { code: "PA", name: "Panamá", timezone: "America/Panama", flag: "🇵🇦" },
-  { code: "GT", name: "Guatemala", timezone: "America/Guatemala", flag: "🇬🇹" },
-  { code: "HN", name: "Honduras", timezone: "America/Tegucigalpa", flag: "🇭🇳" },
-  { code: "SV", name: "El Salvador", timezone: "America/El_Salvador", flag: "🇸🇻" },
-  { code: "NI", name: "Nicaragua", timezone: "America/Managua", flag: "🇳🇮" },
-  { code: "DO", name: "República Dominicana", timezone: "America/Santo_Domingo", flag: "🇩🇴" },
-  { code: "CU", name: "Cuba", timezone: "America/Havana", flag: "🇨🇺" },
-  { code: "US", name: "Estados Unidos", timezone: "America/New_York", flag: "🇺🇸" },
-  { code: "BR", name: "Brasil", timezone: "America/Sao_Paulo", flag: "🇧🇷" },
-  { code: "FR", name: "Francia", timezone: "Europe/Paris", flag: "🇫🇷" },
-  { code: "IT", name: "Italia", timezone: "Europe/Rome", flag: "🇮🇹" },
-  { code: "DE", name: "Alemania", timezone: "Europe/Berlin", flag: "🇩🇪" },
-  { code: "GB", name: "Reino Unido", timezone: "Europe/London", flag: "🇬🇧" },
-]
-
-const TASK_CATEGORIES = [
-  { id: "work", name: "Trabajo", color: "bg-blue-500" },
-  { id: "personal", name: "Personal", color: "bg-green-500" },
-  { id: "health", name: "Salud", color: "bg-red-500" },
-  { id: "learning", name: "Aprendizaje", color: "bg-purple-500" },
-  { id: "social", name: "Social", color: "bg-yellow-500" },
-  { id: "other", name: "Otros", color: "bg-gray-500" },
-]
-
-const DEFAULT_ACHIEVEMENTS = [
-  {
-    id: "first-task",
-    name: "Primer Paso",
-    description: "Completa tu primera tarea",
-    icon: <Star className="w-5 h-5" />,
-    rarity: "common" as const,
-    premium: false,
-  },
-  {
-    id: "streak-3",
-    name: "Calentando Motores",
-    description: "Completa tareas 3 días seguidos",
-    icon: <Zap className="w-5 h-5" />,
-    rarity: "common" as const,
-    premium: false,
-  },
-  {
-    id: "streak-7",
-    name: "Una Semana Fuerte",
-    description: "Completa tareas 7 días seguidos",
-    icon: <CalendarDays className="w-5 h-5" />,
-    rarity: "rare" as const,
-    premium: false,
-  },
-  {
-    id: "streak-30",
-    name: "Máquina Imparable",
-    description: "Completa tareas 30 días seguidos",
-    icon: <Flame className="w-5 h-5" />,
-    rarity: "legendary" as const,
-    premium: false,
-  },
-  {
-    id: "task-master",
-    name: "Maestro de Tareas",
-    description: "Completa 50 tareas en total",
-    icon: <Target className="w-5 h-5" />,
-    rarity: "rare" as const,
-    premium: false,
-  },
-  {
-    id: "perfectionist",
-    name: "Perfeccionista",
-    description: "Completa todas las tareas de un día",
-    icon: <Award className="w-5 h-5" />,
-    rarity: "common" as const,
-    premium: false,
-  },
-  {
-    id: "early-bird",
-    name: "Madrugador",
-    description: "Completa 5 tareas antes de las 9 AM",
-    icon: <Sun className="w-5 h-5" />,
-    rarity: "rare" as const,
-    premium: false,
-  },
-  {
-    id: "night-owl",
-    name: "Búho Nocturno",
-    description: "Completa 5 tareas después de las 10 PM",
-    icon: <Moon className="w-5 h-5" />,
-    rarity: "rare" as const,
-    premium: false,
-  },
-  {
-    id: "productive-day",
-    name: "Día Súper Productivo",
-    description: "Completa 10 tareas en un solo día",
-    icon: <TrendingUp className="w-5 h-5" />,
-    rarity: "epic" as const,
-    premium: false,
-  },
-  {
-    id: "category-master",
-    name: "Multifacético",
-    description: "Completa tareas en todas las categorías",
-    icon: <Coffee className="w-5 h-5" />,
-    rarity: "epic" as const,
-    premium: false,
-  },
-  {
-    id: "centurion",
-    name: "Centurión",
-    description: "Completa 100 tareas en total",
-    icon: <Trophy className="w-5 h-5" />,
-    rarity: "legendary" as const,
-    premium: false,
-  },
-  {
-    id: "premium-streak-90",
-    name: "Leyenda de la Productividad",
-    description: "Completa tareas 90 días seguidos (Premium)",
-    icon: <Sparkles className="w-5 h-5" />,
-    rarity: "legendary" as const,
-    premium: true,
-  },
-  {
-    id: "premium-master-all",
-    name: "Maestro Absoluto",
-    description: "Completa 500 tareas en total (Premium)",
-    icon: <Gem className="w-5 h-5" />,
-    rarity: "legendary" as const,
-    premium: true,
-  },
-] satisfies Omit<Achievement, "unlocked" | "unlockedAt">[]
-
-const BASIC_THEMES = [
-  {
-    id: "default",
-    name: "Default",
-    background: "from-slate-900 via-purple-900 to-slate-900",
-    accentColorRgba: "rgba(168, 85, 247, 0.3)",
-    premium: false,
-    isDark: true,
-  },
-  {
-    id: "dark",
-    name: "Oscuro",
-    background: "from-gray-900 via-gray-800 to-gray-900",
-    accentColorRgba: "rgba(100, 116, 139, 0.3)",
-    premium: false,
-    isDark: true,
-  },
-  {
-    id: "light",
-    name: "Claro",
-    background: "from-gray-50 via-gray-100 to-gray-50",
-    accentColorRgba: "rgba(59, 130, 246, 0.3)",
-    premium: false,
-    isDark: false,
-  },
-  {
-    id: "forest",
-    name: "Bosque",
-    background: "from-green-950 via-green-900 to-green-950",
-    accentColorRgba: "rgba(34, 197, 94, 0.3)",
-    premium: false,
-    isDark: true,
-  },
-]
-
-const PREMIUM_THEMES = [
-  {
-    id: "futuristic",
-    name: "Futurista",
-    background: "from-blue-900 via-purple-900 to-pink-900",
-    accentColorRgba: "rgba(59, 130, 246, 0.3)",
-    premium: true,
-    isDark: true,
-  },
-  {
-    id: "neon",
-    name: "Neón",
-    background: "from-green-900 via-cyan-900 to-blue-900",
-    accentColorRgba: "rgba(6, 182, 212, 0.3)",
-    premium: true,
-    isDark: true,
-  },
-]
-
-const ALL_THEMES = [...BASIC_THEMES, ...PREMIUM_THEMES]
-
-const MAX_FREE_TASKS = 20
-
-const formatDateToLocal = (date: Date): string => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+interface CalendarEvent {
+  id: string
+  title: string
+  start: Date
+  end: Date
+  resource: Task
 }
 
-const formatDateForDisplay = (dateStr: string): string => {
-  const date = new Date(dateStr + "T00:00:00")
-  return date.toLocaleDateString("es-ES", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+interface UserPreferences {
+  theme: 'light' | 'dark' | 'system'
+  language: 'en' | 'es'
+  notifications: boolean
+  soundEnabled: boolean
+  pomodoroTime: number
+  shortBreakTime: number
+  longBreakTime: number
+  autoStartBreaks: boolean
+  autoStartPomodoros: boolean
+  longBreakInterval: number
+  dailyGoal: number
+  weeklyGoal: number
+  backgroundGradient: string
+  isPremium: boolean
+  premiumExpiry?: Date
 }
 
-const getRelativeDate = (dateStr: string): string => {
-  const date = new Date(dateStr + "T00:00:00")
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
+const defaultPreferences: UserPreferences = {
+  theme: 'system',
+  language: 'en',
+  notifications: true,
+  soundEnabled: true,
+  pomodoroTime: 25,
+  shortBreakTime: 5,
+  longBreakTime: 15,
+  autoStartBreaks: false,
+  autoStartPomodoros: false,
+  longBreakInterval: 4,
+  dailyGoal: 8,
+  weeklyGoal: 40,
+  backgroundGradient: 'from-purple-400 via-pink-500 to-red-500',
+  isPremium: false,
+}
 
-  if (formatDateToLocal(date) === formatDateToLocal(today)) return "Hoy"
-  if (formatDateToLocal(date) === formatDateToLocal(yesterday)) return "Ayer"
-  if (formatDateToLocal(date) === formatDateToLocal(tomorrow)) return "Mañana"
+const backgroundGradients = [
+  'from-purple-400 via-pink-500 to-red-500',
+  'from-blue-400 via-purple-500 to-pink-500',
+  'from-green-400 via-blue-500 to-purple-500',
+  'from-yellow-400 via-orange-500 to-red-500',
+  'from-pink-400 via-red-500 to-yellow-500',
+  'from-indigo-400 via-purple-500 to-pink-500',
+  'from-teal-400 via-blue-500 to-purple-500',
+  'from-orange-400 via-pink-500 to-purple-500',
+]
 
-  return formatDateForDisplay(dateStr)
+const premiumGradients = [
+  'from-gradient-to-r from-purple-900 via-blue-900 to-indigo-900',
+  'from-gradient-to-r from-rose-900 via-pink-900 to-purple-900',
+  'from-gradient-to-r from-emerald-900 via-teal-900 to-cyan-900',
+  'from-gradient-to-r from-amber-900 via-orange-900 to-red-900',
+]
+
+const taskCategories = [
+  { id: 'work', name: 'Work', icon: Briefcase, color: 'bg-blue-500' },
+  { id: 'personal', name: 'Personal', icon: User, color: 'bg-green-500' },
+  { id: 'health', name: 'Health', icon: Heart, color: 'bg-red-500' },
+  { id: 'learning', name: 'Learning', icon: BookOpen, color: 'bg-purple-500' },
+  { id: 'fitness', name: 'Fitness', icon: Dumbbell, color: 'bg-orange-500' },
+  { id: 'social', name: 'Social', icon: Users, color: 'bg-pink-500' },
+  { id: 'creative', name: 'Creative', icon: Palette, color: 'bg-yellow-500' },
+  { id: 'home', name: 'Home', icon: Home, color: 'bg-indigo-500' },
+]
+
+const priorityColors = {
+  low: 'bg-green-100 text-green-800 border-green-200',
+  medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  high: 'bg-red-100 text-red-800 border-red-200',
+}
+
+const soundFiles = {
+  notification: '/sounds/notification.mp3',
+  complete: '/sounds/complete.mp3',
+  break: '/sounds/break.mp3',
+  focus: '/sounds/focus.mp3',
 }
 
 export default function FutureTaskApp() {
-  const t = useTranslations("Index")
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const t = useTranslations('common')
   const [tasks, setTasks] = useState<Task[]>([])
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [newTask, setNewTask] = useState("")
-  const [newTaskPriority, setNewTaskPriority] = useState<"low" | "medium" | "high">("medium")
-  const [newTaskCategory, setNewTaskCategory] = useState("personal")
-  const [newTaskReminder, setNewTaskReminder] = useState("")
-  const [achievements, setAchievements] = useState<Achievement[]>(
-    DEFAULT_ACHIEVEMENTS.map((a) => ({ ...a, unlocked: false })),
-  )
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-    enabled: true,
-    taskReminders: true,
-    achievementAlerts: true,
-    streakReminders: true,
-    dailyMotivation: true,
-    reminderTime: "09:00",
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'agenda'>('month')
+  const [showTaskDialog, setShowTaskDialog] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [preferences, setPreferences] = useState<UserPreferences>(defaultPreferences)
+  const [showWelcome, setShowWelcome] = useState(true)
+  const [showPricing, setShowPricing] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showPomodoro, setShowPomodoro] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState<string>('all')
+  const [filterPriority, setFilterPriority] = useState<string>('all')
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [currentBgClass, setCurrentBgClass] = useState(preferences.backgroundGradient)
+
+  // Form states
+  const [taskTitle, setTaskTitle] = useState('')
+  const [taskDescription, setTaskDescription] = useState('')
+  const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('medium')
+  const [taskCategory, setTaskCategory] = useState('work')
+  const [taskDate, setTaskDate] = useState(new Date())
+  const [taskTime, setTaskTime] = useState('09:00')
+  const [taskTags, setTaskTags] = useState('')
+  const [taskEstimatedTime, setTaskEstimatedTime] = useState(30)
+  const [taskRecurring, setTaskRecurring] = useState<'none' | 'daily' | 'weekly' | 'monthly'>('none')
+  const [taskReminder, setTaskReminder] = useState(false)
+
+  // Statistics
+  const [stats, setStats] = useState({
+    totalTasks: 0,
+    completedTasks: 0,
+    todayTasks: 0,
+    weekTasks: 0,
+    pomodoroSessions: 0,
+    focusTime: 0,
+    streak: 0,
   })
 
-  // Auth states
-  const [authMode, setAuthMode] = useState<"login" | "register">("login")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
+  useEffect(() => {
+    loadTasks()
+    loadPreferences()
+    calculateStats()
+  }, [])
 
-  const [country, setCountry] = useState("ES")
-  const [profileCountry, setProfileCountry] = useState("ES")
+  useEffect(() => {
+    setCurrentBgClass(preferences.backgroundGradient)
+  }, [preferences.backgroundGradient])
 
-  // Premium states
-  const [showPricing, setShowPricing] = useState(false)
-  const [currentTheme, setCurrentTheme] = useState(BASIC_THEMES[0].id)
+  const loadTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-  // Profile states
-  const [showProfile, setShowProfile] = useState(false)
-  const [profileEmail, setProfileEmail] = useState("")
-  const [profilePassword, setProfilePassword] = useState("")
-  const [profileName, setProfileName] = useState("")
+      if (error) throw error
 
-  // UI states
-  const [showStats, setShowStats] = useState(false)
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [showAchievements, setShowAchievements] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [showDateSearch, setShowDateSearch] = useState(false)
-  const [showWelcome, setShowWelcome] = useState(true)
-  const [currentView, setCurrentView] = useState<"daily" | "weekly" | "pomodoro">("daily")
+      const formattedTasks = data?.map(task => ({
+        ...task,
+        date: new Date(task.date),
+        reminder: task.reminder ? new Date(task.reminder) : undefined,
+        tags: task.tags || [],
+        subtasks: task.subtasks || [],
+      })) || []
 
-  // Date search
-  const [dateSearchQuery, setDateSearchQuery] = useState("")
+      setTasks(formattedTasks)
+    } catch (error) {
+      console.error('Error loading tasks:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load tasks",
+        variant: "destructive",
+      })
+    }
+  }
 
-  // Edit task states
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [editTaskText, setEditTaskText] = useState("")
-  const [editTaskPriority, setEditTaskPriority] = useState<"low" | "medium" | "high">("medium")
-  const [editTaskCategory, setEditTaskCategory] = useState("personal")
-  const [editTaskReminder, setEditTaskReminder] = useState("")
-  const [editTaskNotes, setEditTaskNotes] = useState("")
-
-  // Function to change locale
-  const onSelectChange = useCallback(
-    (nextLocale: string) => {
-      const newPath = `/${nextLocale}${pathname.substring(3)}`
-      router.replace(newPath)
-    },
-    [pathname, router],
-  )
-
-  // Function to fetch user data, tasks, achievements, and notifications
-  const fetchData = useCallback(
-    async (supabaseUser: any) => {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", supabaseUser.id)
+  const loadPreferences = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
         .single()
 
-      if (profileError) {
-        console.error("Error fetching user profile:", profileError)
-        await supabase.auth.signOut()
-        setUser(null)
-        setShowWelcome(true)
-        return
-      }
+      if (error && error.code !== 'PGRST116') throw error
 
-      setUser(userProfile)
-      setProfileEmail(userProfile.email)
-      setProfileName(userProfile.name)
-      setProfileCountry(userProfile.country || "ES")
-      setShowPricing(!userProfile.is_premium)
-      setShowWelcome(false)
-
-      const savedNotificationSettings = localStorage.getItem("futureTask_notificationSettings")
-      let initialNotificationSettings = notificationSettings
-
-      if (userProfile.notification_settings) {
-        initialNotificationSettings = userProfile.notification_settings
-        if (savedNotificationSettings) {
-          localStorage.removeItem("futureTask_notificationSettings")
-        }
-      } else if (savedNotificationSettings) {
-        try {
-          const parsedSettings = JSON.parse(savedNotificationSettings)
-          const { error: updateError } = await supabase
-            .from("users")
-            .update({ notification_settings: parsedSettings })
-            .eq("id", supabaseUser.id)
-          if (updateError) console.error("Error migrating notification settings:", updateError)
-          else {
-            initialNotificationSettings = parsedSettings
-            localStorage.removeItem("futureTask_notificationSettings")
-          }
-        } catch (e) {
-          console.error("Error parsing notification settings from localStorage:", e)
-          localStorage.removeItem("futureTask_notificationSettings")
-        }
-      }
-      setNotificationSettings(initialNotificationSettings)
-
-      const savedTheme = localStorage.getItem("futureTask_theme")
-      let initialTheme = BASIC_THEMES[0].id
-
-      if (userProfile.theme) {
-        initialTheme = userProfile.theme
-        if (savedTheme) {
-          localStorage.removeItem("futureTask_theme")
-        }
-      } else if (savedTheme) {
-        const { error: updateError } = await supabase
-          .from("users")
-          .update({ theme: savedTheme })
-          .eq("id", supabaseUser.id)
-        if (updateError) console.error("Error migrating theme:", updateError)
-        else {
-          initialTheme = savedTheme
-          localStorage.removeItem("futureTask_theme")
-        }
-      }
-      setCurrentTheme(initialTheme)
-
-      const { data: fetchedTasks, error: tasksError } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", supabaseUser.id)
-
-      if (tasksError) console.error("Error fetching tasks:", tasksError)
-      else setTasks(fetchedTasks || [])
-
-      const { data: fetchedAchievements, error: achievementsError } = await supabase
-        .from("achievements")
-        .select("*")
-        .eq("user_id", supabaseUser.id)
-
-      if (achievementsError) console.error("Error fetching achievements:", achievementsError)
-      else {
-        const parsedAchievements = fetchedAchievements || []
-        setAchievements(
-          DEFAULT_ACHIEVEMENTS.map((base) => {
-            const saved = parsedAchievements.find((s: any) => s.id === base.id)
-            return {
-              ...base,
-              unlocked: saved?.unlocked ?? false,
-              unlockedAt: saved?.unlocked_at,
-            }
-          }),
-        )
-      }
-
-      const { data: fetchedNotifications, error: notificationsError } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", supabaseUser.id)
-        .order("timestamp", { ascending: false })
-
-      if (notificationsError) console.error("Error fetching notifications:", notificationsError)
-      else setNotifications(fetchedNotifications || [])
-    },
-    [notificationSettings],
-  )
-
-  const addNotification = useCallback(
-    async (notification: Omit<Notification, "id" | "timestamp" | "read" | "user_id">) => {
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from("notifications")
-        .insert({
-          user_id: user.id,
-          title: notification.title,
-          message: notification.message,
-          type: notification.type,
-          task_id: notification.task_id || null,
+      if (data) {
+        setPreferences({
+          ...defaultPreferences,
+          ...data,
+          premiumExpiry: data.premium_expiry ? new Date(data.premium_expiry) : undefined,
         })
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error)
+    }
+  }
+
+  const savePreferences = async (newPreferences: UserPreferences) => {
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          ...newPreferences,
+          premium_expiry: newPreferences.premiumExpiry?.toISOString(),
+        })
+
+      if (error) throw error
+
+      setPreferences(newPreferences)
+      toast({
+        title: "Success",
+        description: "Preferences saved successfully",
+      })
+    } catch (error) {
+      console.error('Error saving preferences:', error)
+      toast({
+        title: "Error",
+        description: "Failed to save preferences",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const calculateStats = () => {
+    const today = startOfDay(new Date())
+    const weekStart = startOfWeek(today)
+    const weekEnd = addDays(weekStart, 6)
+
+    const todayTasks = tasks.filter(task => isSameDay(task.date, today))
+    const weekTasks = tasks.filter(task => task.date >= weekStart && task.date <= weekEnd)
+    const completedTasks = tasks.filter(task => task.completed)
+
+    setStats({
+      totalTasks: tasks.length,
+      completedTasks: completedTasks.length,
+      todayTasks: todayTasks.length,
+      weekTasks: weekTasks.length,
+      pomodoroSessions: 0, // This would come from pomodoro tracking
+      focusTime: 0, // This would come from time tracking
+      streak: 0, // This would be calculated based on daily completion
+    })
+  }
+
+  const createTask = async () => {
+    if (!taskTitle.trim()) return
+
+    const newTask: Omit<Task, 'id'> = {
+      title: taskTitle,
+      description: taskDescription,
+      date: new Date(taskDate.toDateString() + ' ' + taskTime),
+      completed: false,
+      priority: taskPriority,
+      category: taskCategory,
+      estimatedTime: taskEstimatedTime,
+      tags: taskTags.split(',').map(tag => tag.trim()).filter(Boolean),
+      subtasks: [],
+      recurring: taskRecurring !== 'none' ? taskRecurring : undefined,
+      reminder: taskReminder ? subDays(new Date(taskDate.toDateString() + ' ' + taskTime), 1) : undefined,
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+          ...newTask,
+          date: newTask.date.toISOString(),
+          reminder: newTask.reminder?.toISOString(),
+        }])
         .select()
         .single()
 
-      if (error) {
-        console.error("Error adding notification:", error)
-        return
+      if (error) throw error
+
+      const createdTask: Task = {
+        ...data,
+        date: new Date(data.date),
+        reminder: data.reminder ? new Date(data.reminder) : undefined,
+        tags: data.tags || [],
+        subtasks: data.subtasks || [],
       }
 
-      setNotifications((prev) => [{ ...data, timestamp: data.timestamp }, ...prev])
-    },
-    [user],
-  )
-
-  const showBrowserNotification = useCallback((title: string, body: string, playSound = true) => {
-    if (Notification.permission === "granted") {
-      const notification = new Notification(title, {
-        body,
-        icon: "/favicon.ico",
-        badge: "/favicon.ico",
-        tag: "futuretask",
-        requireInteraction: false,
-        silent: !playSound,
+      setTasks(prev => [createdTask, ...prev])
+      resetTaskForm()
+      setShowTaskDialog(false)
+      
+      toast({
+        title: "Success",
+        description: "Task created successfully",
       })
 
-      if (playSound) {
-        try {
-          const audio = new Audio(
-            "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSnTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT",
-          )
-          audio.volume = 0.3
-          audio.play().catch(() => {})
-        } catch (e) {
-          // Fallback silencioso
-        }
+      if (preferences.soundEnabled) {
+        playSound('notification')
       }
-
-      setTimeout(() => {
-        notification.close()
-      }, 5000)
-
-      return notification
-    }
-    return null
-  }, [])
-
-  const checkTaskReminders = useCallback(async () => {
-    if (!user || !notificationSettings.enabled || !notificationSettings.taskReminders) return
-
-    const now = new Date()
-    const dateStr = formatDateToLocal(now)
-    const currentTime = now.toTimeString().slice(0, 5)
-
-    const { data: tasksToNotify, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("date", dateStr)
-      .eq("completed", false)
-      .eq("notified", false)
-      .lte("reminder_time", currentTime + ":59")
-
-    if (error) {
-      console.error("Error fetching tasks for reminders:", error)
-      return
-    }
-
-    for (const task of tasksToNotify) {
-      await addNotification({
-        title: t("taskReminderTitle"),
-        message: t("taskReminderMessage", { taskText: task.text }),
-        type: "reminder",
-        task_id: task.id,
+    } catch (error) {
+      console.error('Error creating task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create task",
+        variant: "destructive",
       })
-
-      const { error: updateError } = await supabase.from("tasks").update({ notified: true }).eq("id", task.id)
-
-      if (updateError) console.error("Error updating task notified status:", updateError)
-
-      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, notified: true } : t)))
-
-      showBrowserNotification(t("notificationReminder"), t("taskReminderMessage", { taskText: task.text }), true)
     }
-  }, [user, notificationSettings, addNotification, showBrowserNotification, t])
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (session) {
-        await fetchData(session.user)
-      } else {
-        setShowWelcome(true)
-      }
-
-      if ("Notification" in window && notificationSettings.enabled) {
-        if (Notification.permission === "default") {
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              showBrowserNotification(t("notificationActivatedTitle"), t("notificationActivatedMessage"), true)
-            }
-          })
-        }
-      }
-    }
-
-    loadInitialData()
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        fetchData(session.user)
-      } else {
-        setUser(null)
-        setShowWelcome(true)
-      }
-    })
-
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [fetchData, notificationSettings, t, showBrowserNotification])
-
-  useEffect(() => {
-    const updateLastActive = async () => {
-      if (user) {
-        const { error } = await supabase
-          .from("users")
-          .update({ last_active: new Date().toISOString() })
-          .eq("id", user.id)
-        if (error) console.error("Error updating last active:", error)
-      }
-    }
-    updateLastActive()
-
-    const interval = setInterval(updateLastActive, 60000)
-    return () => clearInterval(interval)
-  }, [user])
-
-  useEffect(() => {
-    const saveNotificationSettings = async () => {
-      if (user) {
-        const { error } = await supabase
-          .from("users")
-          .update({ notification_settings: notificationSettings })
-          .eq("id", user.id)
-        if (error) console.error("Error saving notification settings to Supabase:", error)
-      }
-    }
-    saveNotificationSettings()
-  }, [notificationSettings, user])
-
-  useEffect(() => {
-    const saveTheme = async () => {
-      if (user) {
-        const { error } = await supabase.from("users").update({ theme: currentTheme }).eq("id", user.id)
-        if (error) console.error("Error saving theme to Supabase:", error)
-      }
-    }
-    saveTheme()
-
-    const selectedTheme = ALL_THEMES.find((theme) => theme.id === currentTheme)
-    if (selectedTheme?.isDark) {
-      document.documentElement.classList.add("dark")
-      document.documentElement.classList.remove("light")
-    } else {
-      document.documentElement.classList.remove("dark")
-      document.documentElement.classList.add("light")
-    }
-  }, [currentTheme, user])
-
-  useEffect(() => {
-    const interval = setInterval(checkTaskReminders, 60000)
-    return () => clearInterval(interval)
-  }, [checkTaskReminders])
-
-  const markNotificationAsRead = async (notificationId: string) => {
-    if (!user) return
-    const { error } = await supabase
-      .from("notifications")
-      .update({ read: true })
-      .eq("id", notificationId)
-      .eq("user_id", user.id)
-
-    if (error) console.error("Error marking notification as read:", error)
-    else setNotifications((prev) => prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n)))
   }
 
-  const clearAllNotifications = async () => {
-    if (!user) return
-    const { error } = await supabase.from("notifications").delete().eq("user_id", user.id)
-
-    if (error) console.error("Error clearing all notifications:", error)
-    else setNotifications([])
-  }
-
-  const handleAuth = async () => {
-    const selectedCountry = COUNTRIES.find((c) => c.code === country)
-    const timezone = selectedCountry?.timezone || "Europe/Madrid"
-    const isPremiumUser = email === "jesusrayaleon1@gmail.com"
-
-    if (authMode === "register") {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            country,
-            timezone,
-            is_premium: isPremiumUser,
-            subscription_type: isPremiumUser ? "yearly" : "free",
-          },
-        },
-      })
-
-      if (error) {
-        alert(`${t("registerButton")}: ${error.message}`)
-        console.error("Signup error:", error)
-        return
-      }
-
-      if (data.user) {
-        const { error: profileInsertError } = await supabase.from("users").insert({
-          id: data.user.id,
-          email: data.user.email!,
-          name,
-          country,
-          timezone,
-          is_premium: isPremiumUser,
-          subscription_type: isPremiumUser ? "yearly" : "free",
-          notification_settings: notificationSettings,
-          theme: currentTheme,
-        })
-
-        if (profileInsertError) {
-          console.error("Error inserting user profile:", profileInsertError)
-          alert(t("registerButton"))
-          await supabase.auth.signOut()
-          return
-        }
-
-        await addNotification({
-          title: "🎉 ¡Bienvenido a FutureTask!",
-          message: t("newAccountMessage", { flag: selectedCountry?.flag, countryName: selectedCountry?.name }),
-          type: "achievement",
-        })
-        setShowPricing(!isPremiumUser)
-      }
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        alert(`${t("loginButton")}: ${error.message}`)
-        console.error("Login error:", error)
-        return
-      }
-
-      if (data.user) {
-        await addNotification({
-          title: "👋 ¡Bienvenido de vuelta!",
-          message: t("welcomeBackMessage"),
-          type: "achievement",
-        })
-      }
-    }
-    setEmail("")
-    setPassword("")
-    setName("")
-    setCountry("ES")
-  }
-
-  const handleUpgrade = async (type: "monthly" | "yearly") => {
-    if (user) {
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
       const { error } = await supabase
-        .from("users")
-        .update({ is_premium: true, subscription_type: type })
-        .eq("id", user.id)
+        .from('tasks')
+        .update({
+          ...updates,
+          date: updates.date?.toISOString(),
+          reminder: updates.reminder?.toISOString(),
+        })
+        .eq('id', taskId)
 
-      if (error) {
-        console.error("Error upgrading subscription:", error)
-        alert(t("premiumActivatedTitle"))
-        return
+      if (error) throw error
+
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, ...updates } : task
+      ))
+
+      if (updates.completed && preferences.soundEnabled) {
+        playSound('complete')
       }
-
-      setUser((prev) => (prev ? { ...prev, is_premium: true, subscription_type: type } : null))
-      setShowPricing(false)
-      await addNotification({
-        title: t("premiumActivatedTitle"),
-        message: t("premiumActivatedMessage", { planType: type === "monthly" ? t("monthly") : t("yearly") }),
-        type: "achievement",
-      })
-    }
-  }
-
-  const handleDowngrade = async () => {
-    if (user) {
-      const { error } = await supabase
-        .from("users")
-        .update({ is_premium: false, subscription_type: "free" })
-        .eq("id", user.id)
-
-      if (error) {
-        console.error("Error downgrading subscription:", error)
-        alert(t("freePlanTitle"))
-        return
-      }
-
-      setUser((prev) => (prev ? { ...prev, is_premium: false, subscription_type: "free" } : null))
-      await addNotification({
-        title: t("freePlanTitle"),
-        message: t("freePlanMessage"),
-        type: "achievement",
-      })
-    }
-  }
-
-  const updateProfile = async () => {
-    if (user) {
-      const selectedCountry = COUNTRIES.find((c) => c.code === profileCountry)
-      const updateData: { name: string; email: string; country: string; timezone: string; last_active: string } = {
-        name: profileName,
-        email: profileEmail,
-        country: profileCountry,
-        timezone: selectedCountry?.timezone || user.timezone,
-        last_active: new Date().toISOString(),
-      }
-
-      const { error } = await supabase.from("users").update(updateData).eq("id", user.id)
-
-      if (error) {
-        console.error("Error updating profile:", error)
-        alert(t("profileUpdatedTitle"))
-        return
-      }
-
-      if (profileEmail !== user.email) {
-        const { error: authUpdateError } = await supabase.auth.updateUser({ email: profileEmail })
-        if (authUpdateError) {
-          console.error("Error updating auth email:", authUpdateError)
-          alert(t("profileUpdatedTitle"))
-          return
-        }
-      }
-
-      if (profilePassword) {
-        const { error: passwordUpdateError } = await supabase.auth.updateUser({ password: profilePassword })
-        if (passwordUpdateError) {
-          console.error("Error updating password:", passwordUpdateError)
-          alert(t("profileUpdatedTitle"))
-          return
-        }
-      }
-
-      setUser((prev) => (prev ? { ...prev, ...updateData } : null))
-      setShowProfile(false)
-      setProfilePassword("")
-
-      await addNotification({
-        title: t("profileUpdatedTitle"),
-        message: t("profileUpdatedMessage", { countryName: selectedCountry?.name }),
-        type: "achievement",
-      })
-    }
-  }
-
-  const logout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error("Error logging out:", error)
-      alert(t("logout"))
-    } else {
-      setUser(null)
-      setTasks([])
-      setAchievements(DEFAULT_ACHIEVEMENTS.map((a) => ({ ...a, unlocked: false })))
-      setNotifications([])
-      setShowWelcome(true)
-    }
-  }
-
-  const addTask = async () => {
-    if (!newTask.trim() || !user) return
-
-    if (!user.is_premium && tasks.filter((t) => !t.completed).length >= MAX_FREE_TASKS) {
-      await addNotification({
-        title: t("limitReachedTitle"),
-        message: t("limitReachedMessage", { maxTasks: MAX_FREE_TASKS }),
-        type: "reminder",
-      })
-      return
-    }
-
-    const dateStr = formatDateToLocal(selectedDate)
-
-    const { data, error } = await supabase
-      .from("tasks")
-      .insert({
-        user_id: user.id,
-        text: newTask,
-        completed: false,
-        date: dateStr,
-        priority: newTaskPriority,
-        category: newTaskCategory,
-        reminder_time: newTaskReminder || null,
-        notified: false,
-      })
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error adding task:", error)
-      alert(t("addTask"))
-      return
-    }
-
-    setTasks((prev) => [...prev, data])
-    setNewTask("")
-    setNewTaskReminder("")
-
-    await addNotification({
-      title: "📝 Nueva Tarea Creada",
-      message: `"${data.text}" agregada para ${getRelativeDate(dateStr)}`,
-      type: "task",
-      task_id: data.id,
-    })
-  }
-
-  const toggleTask = async (taskId: string) => {
-    if (!user) return
-    const taskToUpdate = tasks.find((task) => task.id === taskId)
-    if (!taskToUpdate) return
-
-    const newCompletedStatus = !taskToUpdate.completed
-    const newCompletedAt = newCompletedStatus ? new Date().toISOString() : null
-
-    const { data, error } = await supabase
-      .from("tasks")
-      .update({ completed: newCompletedStatus, completed_at: newCompletedAt, notified: false })
-      .eq("id", taskId)
-      .eq("user_id", user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error toggling task:", error)
-      alert(t("taskCompletedTitle"))
-      return
-    }
-
-    setTasks((prev) => prev.map((task) => (task.id === taskId ? data : task)))
-
-    if (newCompletedStatus) {
-      await addNotification({
-        title: t("taskCompletedTitle"),
-        message: t("taskCompletedMessage", { taskText: data.text }),
-        type: "task",
-        task_id: data.id,
+    } catch (error) {
+      console.error('Error updating task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive",
       })
     }
   }
 
   const deleteTask = async (taskId: string) => {
-    if (!user) return
-    const taskToDelete = tasks.find((t) => t.id === taskId)
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
 
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId).eq("user_id", user.id)
+      if (error) throw error
 
-    if (error) {
-      console.error("Error deleting task:", error)
-      alert(t("taskDeletedTitle"))
-      return
-    }
-
-    setTasks((prev) => prev.filter((task) => task.id !== taskId))
-
-    if (taskToDelete) {
-      await addNotification({
-        title: t("taskDeletedTitle"),
-        message: t("taskDeletedMessage", { taskText: taskToDelete.text }),
-        type: "task",
+      setTasks(prev => prev.filter(task => task.id !== taskId))
+      
+      toast({
+        title: "Success",
+        description: "Task deleted successfully",
+      })
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive",
       })
     }
   }
 
-  const openEditDialog = (task: Task) => {
-    setEditingTask(task)
-    setEditTaskText(task.text)
-    setEditTaskPriority(task.priority)
-    setEditTaskCategory(task.category)
-    setEditTaskReminder(task.reminder_time || "")
-    setEditTaskNotes(task.notes || "")
-    setShowEditDialog(true)
-  }
-
-  const saveEditedTask = async () => {
-    if (!editingTask || !editTaskText.trim() || !user) return
-
-    const { data, error } = await supabase
-      .from("tasks")
-      .update({
-        text: editTaskText,
-        priority: editTaskPriority,
-        category: editTaskCategory,
-        reminder_time: editTaskReminder || null,
-        notes: editTaskNotes || null,
-        notified: false,
-      })
-      .eq("id", editingTask.id)
-      .eq("user_id", user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error saving edited task:", error)
-      alert(t("taskModifiedTitle"))
-      return
-    }
-
-    setTasks((prev) => prev.map((task) => (task.id === editingTask.id ? data : task)))
-
-    await addNotification({
-      title: t("taskModifiedTitle"),
-      message: t("taskModifiedMessage", { taskText: data.text }),
-      type: "task",
-      task_id: data.id,
-    })
-
-    setShowEditDialog(false)
+  const resetTaskForm = () => {
+    setTaskTitle('')
+    setTaskDescription('')
+    setTaskPriority('medium')
+    setTaskCategory('work')
+    setTaskDate(new Date())
+    setTaskTime('09:00')
+    setTaskTags('')
+    setTaskEstimatedTime(30)
+    setTaskRecurring('none')
+    setTaskReminder(false)
     setEditingTask(null)
-    setEditTaskText("")
-    setEditTaskPriority("medium")
-    setEditTaskCategory("personal")
-    setEditTaskReminder("")
-    setEditTaskNotes("")
   }
 
-  const cancelEdit = () => {
-    setShowEditDialog(false)
-    setEditingTask(null)
-    setEditTaskText("")
-    setEditTaskPriority("medium")
-    setEditTaskCategory("personal")
-    setEditTaskReminder("")
-    setEditTaskNotes("")
-  }
-
-  const navigateDate = (direction: "prev" | "next" | "today") => {
-    const newDate = new Date(selectedDate)
-    if (direction === "prev") {
-      newDate.setDate(newDate.getDate() - 1)
-    } else if (direction === "next") {
-      newDate.setDate(newDate.getDate() + 1)
-    } else {
-      setSelectedDate(new Date())
-      return
-    }
-    setSelectedDate(newDate)
-  }
-
-  const getStreak = () => {
-    const sortedDates = [...new Set(tasks.filter((t) => t.completed).map((t) => t.date))].sort()
-    if (sortedDates.length === 0) return 0
-
-    let streak = 1
-
-    for (let i = sortedDates.length - 1; i > 0; i--) {
-      const currentDate = new Date(sortedDates[i])
-      const prevDate = new Date(sortedDates[i - 1])
-      const daysDiff = (currentDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
-
-      if (daysDiff === 1) {
-        streak++
-      } else {
-        break
-      }
-    }
-
-    return streak
-  }
-
-  const checkAchievements = useCallback(async () => {
-    if (!user) return
-
-    const completedTasks = tasks.filter((task) => task.completed)
-    const totalCompleted = completedTasks.length
-    const streak = getStreak()
-    const todayTasks = tasks.filter((task) => task.date === formatDateToLocal(selectedDate))
-    const completedCategories = new Set(completedTasks.map((t) => t.category))
-
-    const earlyTasks = completedTasks.filter((t) => {
-      if (!t.completed_at) return false
-      const hour = new Date(t.completed_at).getHours()
-      return hour < 9
-    })
-
-    const lateTasks = completedTasks.filter((t) => {
-      if (!t.completed_at) return false
-      const hour = new Date(t.completed_at).getHours()
-      return hour >= 22
-    })
-
-    const tasksByDate = tasks.reduce(
-      (acc, task) => {
-        if (task.completed) {
-          acc[task.date] = (acc[task.date] || 0) + 1
-        }
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const maxTasksInDay = Math.max(...Object.values(tasksByDate), 0)
-
-    const updatedAchievements = await Promise.all(
-      DEFAULT_ACHIEVEMENTS.map(async (achievement) => {
-        const currentAchievement = achievements.find((a) => a.id === achievement.id)
-        if (currentAchievement?.unlocked) return currentAchievement
-
-        if (achievement.premium && !user.is_premium) return achievement
-
-        let shouldUnlock = false
-
-        switch (achievement.id) {
-          case "first-task":
-            shouldUnlock = totalCompleted >= 1
-            break
-          case "streak-3":
-            shouldUnlock = streak >= 3
-            break
-          case "streak-7":
-            shouldUnlock = streak >= 7
-            break
-          case "streak-30":
-            shouldUnlock = streak >= 30
-            break
-          case "task-master":
-            shouldUnlock = totalCompleted >= 50
-            break
-          case "centurion":
-            shouldUnlock = totalCompleted >= 100
-            break
-          case "perfectionist":
-            shouldUnlock = todayTasks.length > 0 && todayTasks.every((task) => task.completed)
-            break
-          case "early-bird":
-            shouldUnlock = earlyTasks.length >= 5
-            break
-          case "night-owl":
-            shouldUnlock = lateTasks.length >= 5
-            break
-          case "productive-day":
-            shouldUnlock = maxTasksInDay >= 10
-            break
-          case "category-master":
-            shouldUnlock = completedCategories.size >= TASK_CATEGORIES.length
-            break
-          case "premium-streak-90":
-            shouldUnlock = user.is_premium && streak >= 90
-            break
-          case "premium-master-all":
-            shouldUnlock = user.is_premium && totalCompleted >= 500
-            break
-        }
-
-        if (shouldUnlock) {
-          const unlockedAt = new Date().toISOString()
-          const { error } = await supabase.from("achievements").upsert({
-            id: achievement.id,
-            user_id: user.id,
-            unlocked: true,
-            unlocked_at: unlockedAt,
-          })
-
-          if (error) {
-            console.error("Error unlocking achievement:", error)
-          } else if (notificationSettings.achievementAlerts) {
-            await addNotification({
-              title: t("notificationActivatedTitle"),
-              message: t("notificationAchievement", { achievementName: achievement.name }),
-              type: "achievement",
-            })
-            showBrowserNotification(
-              t("notificationAchievement"),
-              t("notificationAchievement", { achievementName: achievement.name }),
-              true,
-            )
-          }
-          return { ...achievement, unlocked: true, unlockedAt }
-        }
-        return achievement
-      }),
-    )
-    setAchievements(updatedAchievements)
-  }, [user, tasks, achievements, selectedDate, notificationSettings, addNotification, showBrowserNotification, t])
-
-  useEffect(() => {
-    checkAchievements()
-  }, [tasks, checkAchievements])
-
-  const exportData = async () => {
-    if (!user) return
-
-    const { data: userData, error: userError } = await supabase.from("users").select("*").eq("id", user.id).single()
-    const { data: tasksData, error: tasksError } = await supabase.from("tasks").select("*").eq("user_id", user.id)
-    const { data: achievementsData, error: achievementsError } = await supabase
-      .from("achievements")
-      .select("*")
-      .eq("user_id", user.id)
-    const { data: notificationsData, error: notificationsError } = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", user.id)
-
-    if (userError || tasksError || achievementsError || notificationsError) {
-      console.error(
-        "Error fetching data for export:",
-        userError || tasksError || achievementsError || notificationsError,
-      )
-      alert(t("dataExportedTitle"))
-      return
-    }
-
-    const data = {
-      user: userData,
-      tasks: tasksData,
-      achievements: achievementsData,
-      notifications: notificationsData,
-      notificationSettings,
-      exportDate: new Date().toISOString(),
-    }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `futuretask-backup-${new Date().toISOString().split("T")[0]}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-
-    await addNotification({
-      title: t("dataExportedTitle"),
-      message: t("dataExportedMessage"),
-      type: "achievement",
-    })
-  }
-
-  const getRarityColor = (rarity: Achievement["rarity"]) => {
-    switch (rarity) {
-      case "common":
-        return "from-gray-500 to-gray-600"
-      case "rare":
-        return "from-blue-500 to-blue-600"
-      case "epic":
-        return "from-purple-500 to-purple-600"
-      case "legendary":
-        return "from-yellow-500 to-orange-500"
+  const playSound = (soundType: keyof typeof soundFiles) => {
+    if (preferences.soundEnabled) {
+      const audio = new Audio(soundFiles[soundType])
+      audio.play().catch(console.error)
     }
   }
 
-  const getRarityBadge = (rarity: Achievement["rarity"]) => {
-    const colors = {
-      common: "bg-gray-500",
-      rare: "bg-blue-500",
-      epic: "bg-purple-500",
-      legendary: "bg-gradient-to-r from-yellow-500 to-orange-500",
-    }
-    return colors[rarity]
-  }
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = filterCategory === 'all' || task.category === filterCategory
+    const matchesPriority = filterPriority === 'all' || task.priority === filterPriority
+    const matchesCompleted = showCompleted || !task.completed
 
-  const getTasksForDate = (date: Date) => {
-    const dateStr = formatDateToLocal(date)
-    return tasks.filter((task) => task.date === dateStr)
-  }
+    return matchesSearch && matchesCategory && matchesPriority && matchesCompleted
+  })
 
-  const getTodayTasks = () => getTasksForDate(selectedDate)
-  const getCompletedTasks = () => getTodayTasks().filter((task) => task.completed)
-  const getTodayProgress = () => {
-    const todayTasks = getTodayTasks()
-    if (todayTasks.length === 0) return 0
-    return (getCompletedTasks().length / todayTasks.length) * 100
-  }
+  const calendarEvents: CalendarEvent[] = filteredTasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    start: task.date,
+    end: addDays(task.date, 0),
+    resource: task,
+  }))
 
-  const getDateWithTasks = () => {
-    const datesWithTasks = new Set(tasks.map((task) => task.date))
-    return Array.from(datesWithTasks).map((dateStr) => {
-      const [year, month, day] = dateStr.split("-").map(Number)
-      return new Date(year, month - 1, day)
-    })
-  }
+  const todayTasks = tasks.filter(task => isSameDay(task.date, new Date()))
+  const upcomingTasks = tasks.filter(task => task.date > new Date() && !task.completed).slice(0, 5)
 
-  const getPriorityColor = (priority: Task["priority"]) => {
-    switch (priority) {
-      case "high":
-        return "border-l-red-500"
-      case "medium":
-        return "border-l-yellow-500"
-      case "low":
-        return "border-l-green-500"
-    }
-  }
-
-  const getCategoryInfo = (categoryId: string) => {
-    return TASK_CATEGORIES.find((c) => c.id === categoryId) || TASK_CATEGORIES[TASK_CATEGORIES.length - 1]
-  }
-
-  const getDateSearchResults = () => {
-    if (!dateSearchQuery.trim()) {
-      const uniqueDates = [...new Set(tasks.map((task) => task.date))].sort().reverse().slice(0, 5)
-
-      return uniqueDates.map((dateStr) => {
-        const tasksForDate = tasks.filter((task) => task.date === dateStr)
-        const completedCount = tasksForDate.filter((task) => task.completed).length
-        const totalCount = tasksForDate.length
-
-        return {
-          date: dateStr,
-          displayDate: formatDateForDisplay(dateStr),
-          relativeDate: getRelativeDate(dateStr),
-          tasksCount: totalCount,
-          completedCount,
-          tasks: tasksForDate,
-        }
-      })
-    }
-
-    const query = dateSearchQuery.toLowerCase()
-    const uniqueDates = [...new Set(tasks.map((task) => task.date))].sort().reverse()
-
-    return uniqueDates
-      .map((item) => {
-        const tasksForDate = tasks.filter((task) => task.date === item)
-        const completedCount = tasksForDate.filter((task) => task.completed).length
-        const totalCount = tasksForDate.length
-
-        return {
-          date: item,
-          displayDate: formatDateForDisplay(item),
-          relativeDate: getRelativeDate(item),
-          tasksCount: totalCount,
-          completedCount,
-          tasks: tasksForDate,
-        }
-      })
-      .filter(
-        (item) =>
-          item.displayDate.toLowerCase().includes(query) ||
-          item.relativeDate.toLowerCase().includes(query) ||
-          item.tasks.some((task) => task.text.toLowerCase().includes(query)) ||
-          item.date.includes(query) ||
-          (query.includes(t("searchToday").toLowerCase()) && item.relativeDate === t("searchToday")) ||
-          (query.includes(t("searchYesterday").toLowerCase()) && item.relativeDate === t("searchYesterday")) ||
-          (query.includes(t("searchTomorrow").toLowerCase()) && item.relativeDate === t("searchTomorrow")),
-      )
-      .slice(0, 10)
-  }
-
-  const selectDateFromSearch = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-").map(Number)
-    setSelectedDate(new Date(year, month - 1, day))
-    setShowDateSearch(false)
-    setDateSearchQuery("")
-  }
-
-  const unreadNotificationsCount = notifications.filter((n) => !n.read).length
-  const currentAccentColor =
-    ALL_THEMES.find((theme) => theme.id === currentTheme)?.accentColorRgba || BASIC_THEMES[0].accentColorRgba
-
-  const getUserLocalTime = () => {
-    if (!user?.timezone) return new Date()
-    return new Date(new Date().toLocaleString("en-US", { timeZone: user.timezone }))
-  }
-
-  const formatUserTime = (date: Date) => {
-    if (!user?.timezone) return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
-    return date.toLocaleString("es-ES", {
-      timeZone: user.timezone,
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
-
-  // Render welcome screen first
   if (showWelcome) {
-    return <WelcomeScreen onGetStarted={() => setShowWelcome(false)} />
+    return <WelcomeScreen onComplete={() => setShowWelcome(false)} />
   }
 
-  // Render auth screen if no user
-  if (!user) {
+  if (showPricing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 animate-fade-in">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
-
-        <Card className="w-full max-w-md bg-black/20 backdrop-blur-xl border-purple-500/20 shadow-2xl animate-scale-in">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center mb-4 animate-bounce-in">
-              <CalendarIcon className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              {t("authTitle")}
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">{t("authDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={authMode} onValueChange={(value) => setAuthMode(value as "login" | "register")}>
-              <TabsList className="grid w-full grid-cols-2 bg-purple-900/20">
-                <TabsTrigger
-                  value="login"
-                  className="data-[state=active]:bg-purple-500/30 transition-colors duration-300"
-                >
-                  {t("loginTab")}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="register"
-                  className="data-[state=active]:bg-purple-500/30 transition-colors duration-300"
-                >
-                  {t("registerTab")}
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login" className="space-y-4 mt-6 animate-fade-in">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">
-                    {t("emailLabel")}
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-black/30 border-purple-500/30 text-foreground placeholder:text-muted-foreground h-12 transition-all duration-300 focus:border-cyan-500"
-                    placeholder="tu@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-foreground">
-                    {t("passwordLabel")}
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-black/30 border-purple-500/30 text-foreground placeholder:text-muted-foreground h-12 transition-all duration-300 focus:border-cyan-500"
-                    placeholder="••••••••"
-                  />
-                </div>
-                <Button
-                  onClick={handleAuth}
-                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold text-lg transition-all duration-300"
-                >
-                  {t("loginButton")}
-                </Button>
-              </TabsContent>
-
-              <TabsContent value="register" className="space-y-4 mt-6 animate-fade-in">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-foreground">
-                    {t("nameLabel")}
-                  </Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="bg-black/30 border-purple-500/30 text-foreground placeholder:text-muted-foreground h-12 transition-all duration-300 focus:border-cyan-500"
-                    placeholder="Tu nombre"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-register" className="text-foreground">
-                    {t("emailLabel")}
-                  </Label>
-                  <Input
-                    id="email-register"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-black/30 border-purple-500/30 text-foreground placeholder:text-muted-foreground h-12 transition-all duration-300 focus:border-cyan-500"
-                    placeholder="tu@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-register" className="text-foreground">
-                    {t("passwordLabel")}
-                  </Label>
-                  <Input
-                    id="password-register"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-black/30 border-purple-500/30 text-foreground placeholder:text-muted-foreground h-12 transition-all duration-300 focus:border-cyan-500"
-                    placeholder="••••••••"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="country" className="text-foreground">
-                    {t("countryLabel")}
-                  </Label>
-                  <Select value={country} onValueChange={setCountry}>
-                    <SelectTrigger className="bg-black/30 border-purple-500/30 text-foreground h-12 transition-all duration-300 hover:border-cyan-500">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-black/90 border-purple-500/30 max-h-60 animate-fade-in">
-                      {COUNTRIES.map((c) => (
-                        <SelectItem key={c.code} value={c.code} className="text-foreground h-12">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg">{c.flag}</span>
-                            <span>{c.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  onClick={handleAuth}
-                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold text-lg transition-all duration-300"
-                >
-                  {t("registerButton")}
-                </Button>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      </div>
+      <PricingSection 
+        onBack={() => setShowPricing(false)}
+        onUpgrade={(plan) => {
+          const newPreferences = {
+            ...preferences,
+            isPremium: true,
+            premiumExpiry: new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000)
+          }
+          savePreferences(newPreferences)
+          setShowPricing(false)
+          toast({
+            title: "Welcome to Premium!",
+            description: "You now have access to all premium features.",
+          })
+        }}
+      />
     )
   }
-
-  // Render pricing section if user is logged in but not premium
-  if (user && showPricing && !user.is_premium) {
-    return <PricingSection onUpgrade={handleUpgrade} onSkip={() => setShowPricing(false)} />
-  }
-
-  const currentBgClass = ALL_THEMES.find((theme) => theme.id === currentTheme)?.background || BASIC_THEMES[0].background
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${currentBgClass} transition-all duration-500`}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),transparent)] pointer-events-none" />
 
       {/* Ad Placeholder for Free Users */}
-      {!user?.is_premium && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800/70 backdrop-blur-sm text-white text-center p-2 z-50 animate-slide-in-bottom">
-          <p className="text-sm">{t("adMessage")}</p>
+      {!preferences.isPremium && (
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 text-center text-sm">
+          <span className="mr-2">🚀 Upgrade to Premium for an ad-free experience!</span>
+          <Button 
+            size="sm" 
+            variant="secondary" 
+            onClick={() => setShowPricing(true)}
+            className="ml-2"
+          >
+            Upgrade Now
+          </Button>
         </div>
       )}
 
-      <div className="relative">
-        {/* Mobile Header */}
-        <div className="lg:hidden bg-black/20 backdrop-blur-xl border-b border-purple-500/20 p-4 animate-fade-in-down">
+      {/* Header */}
+      <header className="bg-white/10 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
-                <CalendarIcon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  FutureTask
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  {t("greeting", { name: user.name })}{" "}
-                  {user.country && COUNTRIES.find((c) => c.code === user.country)?.flag}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {/* Language Switcher */}
-              <Select value={pathname.substring(1, 3)} onValueChange={onSelectChange}>
-                <SelectTrigger className="w-16 bg-black/30 border-purple-500/30 text-foreground h-10 transition-all duration-300 hover:border-cyan-500">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black/90 border-purple-500/30 animate-fade-in">
-                  <SelectItem value="es" className="text-foreground h-10">
-                    🇪🇸 ES
-                  </SelectItem>
-                  <SelectItem value="en" className="text-foreground h-10">
-                    🇬🇧 EN
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Date Search Button */}
-              <Popover open={showDateSearch} onOpenChange={setShowDateSearch}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-foreground hover:bg-purple-500/20 transition-colors duration-300"
-                  >
-                    <Search className="w-5 h-5" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-80 p-0 bg-black/90 backdrop-blur-xl border-purple-500/30 animate-scale-in"
-                  align="end"
-                >
-                  <Command shouldFilter={false}>
-                    <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-                      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50 text-muted-foreground" />
-                      <input
-                        placeholder={t("searchDatesTasks")}
-                        value={dateSearchQuery}
-                        onChange={(e) => setDateSearchQuery(e.target.value)}
-                        className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground text-foreground"
-                      />
-                    </div>
-                    <CommandList className="max-h-64">
-                      {getDateSearchResults().length === 0 ? (
-                        <div className="text-muted-foreground p-4 text-center">
-                          {dateSearchQuery.trim() ? t("noResultsFound") : t("typeToSearch")}
-                        </div>
-                      ) : (
-                        <CommandGroup>
-                          {getDateSearchResults().map((result) => (
-                            <CommandItem
-                              key={result.date}
-                              onSelect={() => selectDateFromSearch(result.date)}
-                              className="text-foreground hover:bg-purple-500/20 cursor-pointer p-3 flex items-center space-x-3 transition-colors duration-200"
-                            >
-                              <CalendarSearch className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-foreground truncate">{result.relativeDate}</div>
-                                <div className="text-sm text-muted-foreground">
-                                  {t("tasksCompleted", {
-                                    completedCount: result.completedCount,
-                                    totalCount: result.tasksCount,
-                                  })}
-                                </div>
-                                {result.tasks.slice(0, 1).map((task) => (
-                                  <div key={task.id} className="text-xs text-muted-foreground truncate">
-                                    • {task.text}
-                                  </div>
-                                ))}
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-
-              {/* Notifications Button */}
+            <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-foreground relative hover:bg-purple-500/20 transition-colors duration-300"
-                onClick={() => setShowNotifications(true)}
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="md:hidden text-white hover:bg-white/20"
               >
-                <Bell className="w-5 h-5" />
-                {unreadNotificationsCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center animate-pulse">
-                    {unreadNotificationsCount}
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-white">FutureTask</h1>
+                {preferences.isPremium && (
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
+                    <Crown className="h-3 w-3 mr-1" />
+                    Premium
                   </Badge>
                 )}
-              </Button>
-
-              <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-foreground hover:bg-purple-500/20 transition-colors duration-300"
-                  >
-                    <Menu className="w-6 h-6" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="bg-black/90 backdrop-blur-xl border-purple-500/30 text-foreground w-80 animate-slide-in-right"
-                >
-                  <SheetHeader>
-                    <SheetTitle className="text-xl bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                      {t("menu")}
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="space-y-4 mt-6">
-                    <Button
-                      onClick={() => {
-                        setShowAchievements(true)
-                        setShowMobileMenu(false)
-                      }}
-                      className="w-full h-12 bg-black/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 justify-start transition-all duration-300"
-                    >
-                      <Trophy className="w-5 h-5 mr-3" />
-                      {t("achievements")} (
-                      {achievements.filter((a) => a.unlocked && (!a.premium || user?.is_premium)).length})
-                    </Button>
-
-                    <Button
-                      onClick={() => {
-                        setShowStats(true)
-                        setShowMobileMenu(false)
-                      }}
-                      className="w-full h-12 bg-black/20 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 justify-start transition-all duration-300"
-                    >
-                      <BarChart3 className="w-5 h-5 mr-3" />
-                      {t("statsTitle")}
-                    </Button>
-
-                    <Button
-                      onClick={() => {
-                        setShowProfile(true)
-                        setShowMobileMenu(false)
-                      }}
-                      className="w-full h-12 bg-black/20 border border-green-500/30 text-green-300 hover:bg-green-500/20 justify-start transition-all duration-300"
-                    >
-                      <Settings className="w-5 h-5 mr-3" />
-                      {t("myProfileTitle")}
-                    </Button>
-
-                    {!user?.is_premium && (
-                      <Button
-                        onClick={() => {
-                          setShowPricing(true)
-                          setShowMobileMenu(false)
-                        }}
-                        className="w-full h-12 bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600 justify-start transition-all duration-300 animate-pulse"
-                      >
-                        <Sparkles className="w-5 h-5 mr-3" />
-                        {t("getPremiumNow")}
-                      </Button>
-                    )}
-
-                    <Button
-                      onClick={logout}
-                      className="w-full h-12 bg-black/20 border border-red-500/30 text-red-300 hover:bg-red-500/20 justify-start transition-all duration-300"
-                    >
-                      <X className="w-5 h-5 mr-3" />
-                      {t("logout")}
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto p-4 space-y-6">
-          {/* Desktop Header */}
-          <div className="hidden lg:flex items-center justify-between animate-fade-in-down">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
-                <CalendarIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  FutureTask
-                </h1>
-                <p className="text-muted-foreground">
-                  {t("greeting", { name: user.name })}{" "}
-                  {user.country && COUNTRIES.find((c) => c.code === user.country)?.flag} •{" "}
-                  {formatUserTime(getUserLocalTime())}
-                </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Language Switcher */}
-              <Select value={pathname.substring(1, 3)} onValueChange={onSelectChange}>
-                <SelectTrigger className="w-24 bg-black/20 border-purple-500/30 text-foreground h-10 transition-all duration-300 hover:border-cyan-500">
-                  <Globe className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black/90 border-purple-500/30 animate-fade-in">
-                  <SelectItem value="es" className="text-foreground h-10">
-                    🇪🇸 Español
-                  </SelectItem>
-                  <SelectItem value="en" className="text-foreground h-10">
-                    🇬🇧 English
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60 h-4 w-4" />
+                <Input
+                  placeholder="Search tasks..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60 w-64"
+                />
+              </div>
 
               <Button
-                onClick={logout}
-                variant="outline"
-                className="bg-black/20 border-red-500/30 text-red-300 hover:bg-red-500/20 transition-all duration-300"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPomodoro(true)}
+                className="text-white hover:bg-white/20"
               >
-                {t("logout")}
+                <Clock className="h-4 w-4 mr-2" />
+                Pomodoro
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <div className="p-2">
+                    <Label className="text-sm font-medium">Category</Label>
+                    <Select value={filterCategory} onValueChange={setFilterCategory}>
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {taskCategories.map(category => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="p-2">
+                    <Label className="text-sm font-medium">Priority</Label>
+                    <Select value={filterPriority} onValueChange={setFilterPriority}>
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priorities</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="p-2">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="show-completed"
+                        checked={showCompleted}
+                        onCheckedChange={setShowCompleted}
+                      />
+                      <Label htmlFor="show-completed">Show completed</Label>
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                onClick={() => setShowTaskDialog(true)}
+                className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Task
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="/placeholder-user.jpg" />
+                      <AvatarFallback>U</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowPricing(true)}>
+                    <Crown className="h-4 w-4 mr-2" />
+                    {preferences.isPremium ? 'Manage Premium' : 'Upgrade to Premium'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                    <MoreVertical className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowTaskDialog(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Task
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowPomodoro(true)}>
+                    <Clock className="h-4 w-4 mr-2" />
+                    Pomodoro
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="left" className="w-80 p-0">
+            <div className="h-full bg-white/10 backdrop-blur-md">
+              <SheetHeader className="p-6 border-b border-white/20">
+                <SheetTitle className="text-white">Dashboard</SheetTitle>
+              </SheetHeader>
+              
+              <div className="p-6 space-y-6">
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="bg-white/10 border-white/20">
+                    <CardContent className="p-4">
+                      <div className="text-2xl font-bold text-white">{stats.todayTasks}</div>
+                      <div className="text-sm text-white/60">Today's Tasks</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-white/10 border-white/20">
+                    <CardContent className="p-4">
+                      <div className="text-2xl font-bold text-white">{stats.completedTasks}</div>
+                      <div className="text-sm text-white/60">Completed</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Today's Tasks */}
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Today's Tasks</h3>
+                  <ScrollArea className="h-48">
+                    <div className="space-y-2">
+                      {todayTasks.map(task => (
+                        <div
+                          key={task.id}
+                          className="flex items-center space-x-3 p-3 bg-white/10 rounded-lg border border-white/20"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => updateTask(task.id, { completed: !task.completed })}
+                            className="p-0 h-auto text-white hover:bg-white/20"
+                          >
+                            {task.completed ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <div className="h-4 w-4 border border-white/40 rounded" />
+                            )}
+                          </Button>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm text-white ${task.completed ? 'line-through opacity-60' : ''}`}>
+                              {task.title}
+                            </div>
+                            <div className="text-xs text-white/60">
+                              {format(task.date, 'HH:mm')}
+                            </div>
+                          </div>
+                          <Badge className={`${priorityColors[task.priority]} text-xs`}>
+                            {task.priority}
+                          </Badge>
+                        </div>
+                      ))}
+                      {todayTasks.length === 0 && (
+                        <div className="text-center text-white/60 py-8">
+                          No tasks for today
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-white mb-3">Quick Actions</h3>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-white hover:bg-white/20"
+                    onClick={() => setShowTaskDialog(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Task
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-white hover:bg-white/20"
+                    onClick={() => setShowPomodoro(true)}
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Start Pomodoro
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-white hover:bg-white/20"
+                    onClick={() => setCurrentView('week')}
+                  >
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    Week View
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* View Selector */}
+            <div className="mb-6">
+              <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
+                <TabsList className="bg-white/10 border-white/20">
+                  <TabsTrigger value="month" className="text-white data-[state=active]:bg-white/20">
+                    Month
+                  </TabsTrigger>
+                  <TabsTrigger value="week" className="text-white data-[state=active]:bg-white/20">
+                    Week
+                  </TabsTrigger>
+                  <TabsTrigger value="day" className="text-white data-[state=active]:bg-white/20">
+                    Day
+                  </TabsTrigger>
+                  <TabsTrigger value="agenda" className="text-white data-[state=active]:bg-white/20">
+                    Agenda
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {/* Calendar */}
+            {currentView === 'week' ? (
+              <WeeklyView
+                tasks={filteredTasks}
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+                onTaskClick={(task) => {
+                  setEditingTask(task)
+                  setShowTaskDialog(true)
+                }}
+                onTaskComplete={(taskId) => {
+                  const task = tasks.find(t => t.id === taskId)
+                  if (task) {
+                    updateTask(taskId, { completed: !task.completed })
+                  }
+                }}
+              />
+            ) : (
+              <Card className="bg-white/10 backdrop-blur-md border-white/20">
+                <CardContent className="p-6">
+                  <div style={{ height: '600px' }}>
+                    <Calendar
+                      localizer={localizer}
+                      events={calendarEvents}
+                      startAccessor="start"
+                      endAccessor="end"
+                      view={currentView}
+                      onView={setCurrentView}
+                      date={selectedDate}
+                      onNavigate={setSelectedDate}
+                      onSelectEvent={(event) => {
+                        setEditingTask(event.resource)
+                        setShowTaskDialog(true)
+                      }}
+                      eventPropGetter={(event) => ({
+                        style: {
+                          backgroundColor: event.resource.completed ? '#10b981' : '#8b5cf6',
+                          borderColor: event.resource.completed ? '#059669' : '#7c3aed',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                        },
+                      })}
+                      components={{
+                        event: ({ event }) => (
+                          <div className="flex items-center space-x-1 text-xs">
+                            <div className={`w-2 h-2 rounded-full ${
+                              taskCategories.find(c => c.id === event.resource.category)?.color || 'bg-gray-500'
+                            }`} />
+                            <span className="truncate">{event.title}</span>
+                            {event.resource.priority === 'high' && (
+                              <AlertCircle className="h-3 w-3 text-red-300" />
+                            )}
+                          </div>
+                        ),
+                      }}
+                      className="text-white"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Task List for Agenda View */}
+            {currentView === 'agenda' && (
+              <div className="mt-6 space-y-4">
+                {filteredTasks.length === 0 ? (
+                  <Card className="bg-white/10 backdrop-blur-md border-white/20">
+                    <CardContent className="p-12 text-center">
+                      <CalendarIcon className="h-12 w-12 text-white/40 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-white mb-2">No tasks found</h3>
+                      <p className="text-white/60 mb-4">
+                        {searchQuery || filterCategory !== 'all' || filterPriority !== 'all'
+                          ? 'Try adjusting your filters or search query.'
+                          : 'Create your first task to get started.'}
+                      </p>
+                      <Button
+                        onClick={() => setShowTaskDialog(true)}
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Task
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  filteredTasks.map(task => {
+                    const category = taskCategories.find(c => c.id === task.category)
+                    const CategoryIcon = category?.icon || Briefcase
+
+                    return (
+                      <Card key={task.id} className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex items-start space-x-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => updateTask(task.id, { completed: !task.completed })}
+                              className="p-0 h-auto text-white hover:bg-white/20 mt-1"
+                            >
+                              {task.completed ? (
+                                <div className="h-5 w-5 bg-green-500 rounded-full flex items-center justify-center">
+                                  <Check className="h-3 w-3 text-white" />
+                                </div>
+                              ) : (
+                                <div className="h-5 w-5 border-2 border-white/40 rounded-full" />
+                              )}
+                            </Button>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h3 className={`text-lg font-semibold text-white ${task.completed ? 'line-through opacity-60' : ''}`}>
+                                  {task.title}
+                                </h3>
+                                <Badge className={`${priorityColors[task.priority]} text-xs`}>
+                                  {task.priority}
+                                </Badge>
+                                {task.priority === 'high' && (
+                                  <AlertCircle className="h-4 w-4 text-red-400" />
+                                )}
+                              </div>
+
+                              {task.description && (
+                                <p className={`text-white/70 mb-2 ${task.completed ? 'line-through opacity-60' : ''}`}>
+                                  {task.description}
+                                </p>
+                              )}
+
+                              <div className="flex items-center space-x-4 text-sm text-white/60">
+                                <div className="flex items-center space-x-1">
+                                  <CategoryIcon className="h-4 w-4" />
+                                  <span>{category?.name || task.category}</span>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                  <CalendarIconSmall className="h-4 w-4" />
+                                  <span>{format(task.date, 'MMM d, yyyy HH:mm')}</span>
+                                </div>
+                                {task.estimatedTime && (
+                                  <div className="flex items-center space-x-1">
+                                    <Clock className="h-4 w-4" />
+                                    <span>{task.estimatedTime}m</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {task.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {task.tags.map(tag => (
+                                    <Badge key={tag} variant="secondary" className="text-xs bg-white/10 text-white/80">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+
+                              {task.subtasks.length > 0 && (
+                                <div className="mt-3">
+                                  <div className="text-sm text-white/60 mb-1">
+                                    Subtasks ({task.subtasks.filter(st => st.completed).length}/{task.subtasks.length})
+                                  </div>
+                                  <Progress 
+                                    value={(task.subtasks.filter(st => st.completed).length / task.subtasks.length) * 100}
+                                    className="h-2 bg-white/20"
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-white hover:bg-white/20">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {
+                                  setEditingTask(task)
+                                  setShowTaskDialog(true)
+                                }}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  const newTask = { ...task, id: crypto.randomUUID(), title: `${task.title} (Copy)` }
+                                  setTasks(prev => [newTask, ...prev])
+                                }}>
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Duplicate
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => deleteTask(task.id)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Task Dialog */}
+      <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
+        <DialogContent className="sm:max-w-[600px] bg-white/10 backdrop-blur-md border-white/20 text-white">
+          <DialogHeader>
+            <DialogTitle>
+              {editingTask ? 'Edit Task' : 'Create New Task'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="task-title">Title</Label>
+              <Input
+                id="task-title"
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+                placeholder="Enter task title..."
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="task-description">Description</Label>
+              <Textarea
+                id="task-description"
+                value={taskDescription}
+                onChange={(e) => setTaskDescription(e.target.value)}
+                placeholder="Enter task description..."
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="task-category">Category</Label>
+                <Select value={taskCategory} onValueChange={setTaskCategory}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {taskCategories.map(category => {
+                      const Icon = category.icon
+                      return (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center space-x-2">
+                            <Icon className="h-4 w-4" />
+                            <span>{category.name}</span>
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="task-priority">Priority</Label>
+                <Select value={taskPriority} onValueChange={(value: 'low' | 'medium' | 'high') => setTaskPriority(value)}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="task-date">Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {format(taskDate, 'PPP')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={taskDate}
+                      onSelect={(date) => date && setTaskDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label htmlFor="task-time">Time</Label>
+                <Input
+                  id="task-time"
+                  type="time"
+                  value={taskTime}
+                  onChange={(e) => setTaskTime(e.target.value)}
+                  className="bg-white/10 border-white/20 text-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="task-estimated-time">Estimated Time (minutes)</Label>
+              <div className="flex items-center space-x-4">
+                <Slider
+                  value={[taskEstimatedTime]}
+                  onValueChange={(value) => setTaskEstimatedTime(value[0])}
+                  max={480}
+                  min={15}
+                  step={15}
+                  className="flex-1"
+                />
+                <span className="text-white w-16 text-right">{taskEstimatedTime}m</span>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="task-tags">Tags (comma separated)</Label>
+              <Input
+                id="task-tags"
+                value={taskTags}
+                onChange={(e) => setTaskTags(e.target.value)}
+                placeholder="work, urgent, meeting..."
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="task-recurring">Recurring</Label>
+                <Select value={taskRecurring} onValueChange={(value: 'none' | 'daily' | 'weekly' | 'monthly') => setTaskRecurring(value)}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-6">
+                <Switch
+                  id="task-reminder"
+                  checked={taskReminder}
+                  onCheckedChange={setTaskReminder}
+                />
+                <Label htmlFor="task-reminder">Set reminder</Label>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetTaskForm()
+                  setShowTaskDialog(false)
+                }}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={createTask}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              >
+                {editingTask ? 'Update Task' : 'Create Task'}
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {/* Simple content for now */}
-          <Card className="bg-black/20 backdrop-blur-xl border-purple-500/20 animate-fade-in">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Bienvenido al Calendario Futurista</h2>
-              <p className="text-muted-foreground">La aplicación se está cargando...</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent className="sm:max-w-[600px] bg-white/10 backdrop-blur-md border-white/20 text-white">
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+          </DialogHeader>
+
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-white/10">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
+              <TabsTrigger value="appearance">Theme</TabsTrigger>
+              <TabsTrigger value="premium">Premium</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="general" className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Notifications</Label>
+                    <p className="text-sm text-white/60">Receive task reminders and updates</p>
+                  </div>
+                  <Switch
+                    checked={preferences.notifications}
+                    onCheckedChange={(checked) => 
+                      savePreferences({ ...preferences, notifications: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Sound Effects</Label>
+                    <p className="text-sm text-white/60">Play sounds for task completion and notifications</p>
+                  </div>
+                  <Switch
+                    checked={preferences.soundEnabled}
+                    onCheckedChange={(checked) => 
+                      savePreferences({ ...preferences, soundEnabled: checked })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <Label>Language</Label>
+                  <Select 
+                    value={preferences.language} 
+                    onValueChange={(value: 'en' | 'es') => 
+                      savePreferences({ ...preferences, language: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Daily Goal (hours)</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Slider
+                      value={[preferences.dailyGoal]}
+                      onValueChange={(value) => 
+                        savePreferences({ ...preferences, dailyGoal: value[0] })
+                      }
+                      max={16}
+                      min={1}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-white w-16 text-right">{preferences.dailyGoal}h</span>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="pomodoro" className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <Label>Focus Time (minutes)</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Slider
+                      value={[preferences.pomodoroTime]}
+                      onValueChange={(value) => 
+                        savePreferences({ ...preferences, pomodoroTime: value[0] })
+                      }
+                      max={60}
+                      min={15}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-white w-16 text-right">{preferences.pomodoroTime}m</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Short Break (minutes)</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Slider
+                      value={[preferences.shortBreakTime]}
+                      onValueChange={(value) => 
+                        savePreferences({ ...preferences, shortBreakTime: value[0] })
+                      }
+                      max={15}
+                      min={3}
+                      step={1}
+                      className="flex-1"
+                    />
+                    <span className="text-white w-16 text-right">{preferences.shortBreakTime}m</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Long Break (minutes)</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Slider
+                      value={[preferences.longBreakTime]}
+                      onValueChange={(value) => 
+                        savePreferences({ ...preferences, longBreakTime: value[0] })
+                      }
+                      max={30}
+                      min={10}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-white w-16 text-right">{preferences.longBreakTime}m</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Auto-start Breaks</Label>
+                    <p className="text-sm text-white/60">Automatically start break timers</p>
+                  </div>
+                  <Switch
+                    checked={preferences.autoStartBreaks}
+                    onCheckedChange={(checked) => 
+                      savePreferences({ ...preferences, autoStartBreaks: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Auto-start Pomodoros</Label>
+                    <p className="text-sm text-white/60">Automatically start focus sessions after breaks</p>
+                  </div>
+                  <Switch
+                    checked={preferences.autoStartPomodoros}
+                    onCheckedChange={(checked) => 
+                      savePreferences({ ...preferences, autoStartPomodoros: checked })
+                    }
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="appearance" className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <Label>Theme</Label>
+                  <Select 
+                    value={preferences.theme} 
+                    onValueChange={(value: 'light' | 'dark' | 'system') => 
+                      savePreferences({ ...preferences, theme: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">
+                        <div className="flex items-center space-x-2">
+                          <Sun className="h-4 w-4" />
+                          <span>Light</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="dark">
+                        <div className="flex items-center space-x-2">
+                          <Moon className="h-4 w-4" />
+                          <span>Dark</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="system">
+                        <div className="flex items-center space-x-2">
+                          <Settings className="h-4 w-4" />
+                          <span>System</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Background Gradient</Label>
+                  <div className="grid grid-cols-4 gap-2 mt-2">
+                    {(preferences.isPremium ? [...backgroundGradients, ...premiumGradients] : backgroundGradients).map((gradient, index) => (
+                      <button
+                        key={index}
+                        onClick={() => savePreferences({ ...preferences, backgroundGradient: gradient })}
+                        className={`h-12 rounded-lg bg-gradient-to-r ${gradient} border-2 transition-all ${
+                          preferences.backgroundGradient === gradient 
+                            ? 'border-white scale-105' 
+                            : 'border-white/20 hover:border-white/40'
+                        }`}
+                      >
+                        {preferences.backgroundGradient === gradient && (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Check className="h-4 w-4 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {!preferences.isPremium && (
+                    <p className="text-sm text-white/60 mt-2">
+                      <Crown className="h-3 w-3 inline mr-1" />
+                      Premium gradients available with upgrade
+                    </p>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="premium" className="space-y-4">
+              <div className="text-center space-y-4">
+                {preferences.isPremium ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Crown className="h-6 w-6 text-yellow-400" />
+                      <h3 className="text-xl font-bold text-white">Premium Active</h3>
+                    </div>
+                    <p className="text-white/60">
+                      Your premium subscription is active until{' '}
+                      {preferences.premiumExpiry && format(preferences.premiumExpiry, 'PPP')}
+                    </p>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="bg-white/10 p-3 rounded-lg">
+                        <Check className="h-4 w-4 text-green-400 mb-1" />
+                        <div>Ad-free experience</div>
+                      </div>
+                      <div className="bg-white/10 p-3 rounded-lg">
+                        <Check className="h-4 w-4 text-green-400 mb-1" />
+                        <div>Premium themes</div>
+                      </div>
+                      <div className="bg-white/10 p-3 rounded-lg">
+                        <Check className="h-4 w-4 text-green-400 mb-1" />
+                        <div>Advanced analytics</div>
+                      </div>
+                      <div className="bg-white/10 p-3 rounded-lg">
+                        <Check className="h-4 w-4 text-green-400 mb-1" />
+                        <div>Priority support</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Sparkles className="h-6 w-6 text-purple-400" />
+                      <h3 className="text-xl font-bold text-white">Upgrade to Premium</h3>
+                    </div>
+                    <p className="text-white/60">
+                      Unlock advanced features and remove ads
+                    </p>
+                    <Button
+                      onClick={() => setShowPricing(true)}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                    >
+                      <Crown className="h-4 w-4 mr-2" />
+                      View Plans
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pomodoro Timer Dialog */}
+      <Dialog open={showPomodoro} onOpenChange={setShowPomodoro}>
+        <DialogContent className="sm:max-w-[400px] bg-white/10 backdrop-blur-md border-white/20 text-white">
+          <PomodoroTimer
+            preferences={preferences}
+            onClose={() => setShowPomodoro(false)}
+            onComplete={(sessionType) => {
+              if (preferences.soundEnabled) {
+                playSound(sessionType === 'focus' ? 'complete' : 'break')
+              }
+              toast({
+                title: sessionType === 'focus' ? 'Focus session complete!' : 'Break time!',
+                description: sessionType === 'focus' 
+                  ? 'Great job! Time for a break.' 
+                  : 'Break is over. Ready to focus?',
+              })
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
