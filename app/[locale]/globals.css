@@ -358,3 +358,19 @@
     animation: none;
   }
 }
+
+/* Estilos específicos para páginas localizadas */
+.locale-specific {
+  /* Estilos que pueden variar según el idioma */
+}
+
+/* RTL support para idiomas que lo requieran */
+[dir="rtl"] {
+  .rtl\:text-right {
+    text-align: right;
+  }
+
+  .rtl\:ml-auto {
+    margin-left: auto;
+  }
+}
